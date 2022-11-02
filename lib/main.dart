@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() {
@@ -14,11 +15,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return MaterialApp(
-      title: 'Flutter Demo',flutter
-      theme: ThemeData(
-      primarySwatch: Colors.blue,
-    ),
-    home: const MainMap()
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const MainMap()
     );
   }
 }
@@ -50,7 +51,69 @@ class _MainMapState extends State<MainMap> {
             onSourceTapped: null,
           ),
         ],
-        children: [],
+        children: <Widget>[
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.example.app',
+            subdomains: const ['a', 'b', 'c'],
+          ),
+          MarkerClusterLayerWidget(
+            options: MarkerClusterLayerOptions(
+              maxClusterRadius: 120,
+              size: const Size(40, 40),
+              fitBoundsOptions: const FitBoundsOptions(
+                padding: EdgeInsets.all(50),
+              ),
+              markers: [
+                Marker(
+                  point: LatLng(51.5013562, -0.1249302),
+                  width: 50,
+                  height: 50,
+                  builder: (context) => const Icon(
+                    Icons.pin_drop,
+                    size: 50,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                Marker(
+                  point: LatLng(51.5032704, -0.1196257),
+                  width: 50,
+                  height: 50,
+                  builder: (context) => const Icon(
+                    Icons.pin_drop,
+                    size: 50,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+              ],
+              polygonOptions: const PolygonOptions(
+                  borderColor: Colors.blueAccent,
+                  color: Colors.black12,
+                  borderStrokeWidth: 3),
+              popupOptions: PopupOptions(
+                  popupState: PopupState(),
+                  popupSnap: PopupSnap.markerTop,
+                  popupController: PopupController(),
+                  popupBuilder: (_, marker) => Container(
+                    width: 200,
+                    height: 100,
+                    color: Colors.white,
+                    child: GestureDetector(
+                      onTap: () => debugPrint('Popup tap!'),
+                      child: Text(
+                        'Container popup for marker at ${marker.point}',
+                      ),
+                    ),
+                  )),
+              builder: (context, markers) {
+                return FloatingActionButton(
+                  onPressed: null,
+                  child: Text(markers.length.toString()),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
