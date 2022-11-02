@@ -43,7 +43,9 @@ class _MainMapState extends State<MainMap> {
       body: FlutterMap(
         options: MapOptions(
           center: LatLng(51.509364, -0.128928),
-          zoom: 9.2,
+          zoom: 12,
+          maxZoom: 18.0,
+          interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
         ),
         nonRotatedChildren: [
           AttributionWidget.defaultWidget(
@@ -55,7 +57,6 @@ class _MainMapState extends State<MainMap> {
           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'com.example.app',
-            subdomains: const ['a', 'b', 'c'],
           ),
           MarkerClusterLayerWidget(
             options: MarkerClusterLayerOptions(
