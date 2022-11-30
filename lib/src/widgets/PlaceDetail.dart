@@ -15,9 +15,7 @@ class PlaceDetail extends StatelessWidget {
             padding: const EdgeInsets.only(left: 16, right: 16),
             child: const Text(
                 "Title",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, fontSize: 32, color: Colors.black
-                )
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32)
             ),
           ),
           SizedBox(
@@ -25,12 +23,7 @@ class PlaceDetail extends StatelessWidget {
           ),
           Container(
             padding: const EdgeInsets.only(left: 16, right: 16),
-            child: const Text(
-                "Category",
-                style: TextStyle(
-                    fontWeight: FontWeight.normal, fontSize: 20, color: Colors.black
-                )
-            ),
+            child: const Text("Category", style: TextStyle(fontSize: 20)),
           ),
           SizedBox(
             height: 16.0,
@@ -56,12 +49,7 @@ class PlaceDetail extends StatelessWidget {
                           height: 6.0,
                         ),
                         Container(
-                          child: const Text(
-                              "Description",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.normal, fontSize: 18, color: Colors.black
-                              )
-                          ),
+                          child: const Text("Description", style: TextStyle(fontSize: 18)),
                         ),
                       ]
                   ),
@@ -78,7 +66,7 @@ class PlaceDetail extends StatelessWidget {
               onPressed: () {},
               style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16),
-                  textStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 20, color: Colors.black)
+                  textStyle: const TextStyle(fontSize: 20)
               ),
               child: const Text("Directions"),
             ),
