@@ -5,6 +5,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
+import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 class MainMap extends StatefulWidget {
   const MainMap({super.key});
@@ -37,7 +38,7 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
-        PlaceDetail(),
+        SearchPage(),
       ],
     );
   }

@@ -37,6 +37,7 @@ dependencies:
   flutter_map_marker_cluster: ^1.0.1
   sliding_up_panel: ^2.0.0+1
   backdrop: ^0.8.1
+  anim_search_bar: ^2.0.2
 
 
   # The following adds the Cupertino Icons font to your application.
