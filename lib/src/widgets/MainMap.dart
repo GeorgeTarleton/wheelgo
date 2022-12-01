@@ -5,6 +5,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
+import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 class MainMap extends StatefulWidget {
@@ -52,16 +53,15 @@ class _MainMapState extends State<MainMap> {
 
     return BackdropScaffold(
       appBar: BackdropAppBar(
-        title: const Text("Wheelgo"),
+        title: const Text("Wheelgo", style: TextStyle(color: Colors.white)),
+        backgroundColor: Theme.of(context).primaryColor,
         actions: const <Widget>[
           BackdropToggleButton(
             icon: AnimatedIcons.list_view,
           )
         ],
       ),
-      backLayer: const Center(
-        child: Text("Back Layer"),
-      ),
+      backLayer: RoutingPage(),
       frontLayer: SlidingUpPanel(
         panelBuilder: (ScrollController sc) => _panel(sc),
         borderRadius: radius,

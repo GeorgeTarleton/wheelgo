@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'SearchBar.dart';
+
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -13,41 +15,13 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SearchBar(),
+        Container(
+          padding: const EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
+          child: SearchBar(prompt: "Search here"),
+        ),
         DestinationCard(name: "Name 1", address: "Address 1", distance: "10"),
         DestinationCard(name: "Name 2", address: "Address 2", distance: "20"),
       ],
-    );
-  }
-}
-
-class SearchBar extends StatelessWidget {
-  const SearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
-      child: TextField(
-        cursorColor: Colors.grey,
-        decoration: InputDecoration(
-            fillColor: Color.fromRGBO(222, 222, 222, 100),
-            filled: true,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none
-            ),
-            hintText: 'Search here',
-            hintStyle: TextStyle(
-                color: Colors.grey,
-                fontSize: 18
-            ),
-            prefixIcon: Container(
-              padding: EdgeInsets.all(15),
-              child: Icon(Icons.search),
-            )
-        ),
-      ),
     );
   }
 }

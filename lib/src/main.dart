@@ -15,7 +15,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'Wheelgo',
         theme: ThemeData(
+          primaryColor: Colors.blue,
           primarySwatch: Colors.blue,
+          useMaterial3: true,
+          visualDensity: VisualDensity.standard
         ),
         home: const MainMap()
     );
