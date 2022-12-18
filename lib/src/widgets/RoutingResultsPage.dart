@@ -13,12 +13,22 @@ class RoutingResultsPage extends StatelessWidget {
             padding: EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
             child: KeyInfo(),
           ),
+          SizedBox(
+            height: 4.0,
+          ),
           Container(
+            padding: EdgeInsets.only(left: 20, right: 20),
             child: Column(
               children: [
                 StartInfo(),
                 Container(
-                  child: Text("Divider buffer"),
+                  height: 25,
+                  alignment: Alignment.topLeft,
+                  child: const VerticalDivider(
+                    width: 44,
+                    thickness: 3,
+                    color: Colors.grey,
+                  ),
                 ),
                 WalkingInfo(),
                 PublicTransportInfo(),
@@ -96,8 +106,18 @@ class StartInfo extends StatelessWidget {
     return Container(
       child: Row(
         children: [
-          Text("Start icon"),
-          Text("Start location")
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Icon(Icons.location_on_outlined, color: Colors.white),
+          ),
+          SizedBox(width: 20.0),
+          Text("Start location",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
