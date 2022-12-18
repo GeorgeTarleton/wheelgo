@@ -6,9 +6,13 @@ class RoutingResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Column(
-        children: [
-          KeyInfo(),
+    return ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
+            child: KeyInfo(),
+          ),
           Container(
             child: Column(
               children: [
@@ -33,9 +37,54 @@ class KeyInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text("First info part"),
+    return Material(
+      elevation: 10,
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      child: Container(
+        padding: EdgeInsets.only(top: 10, bottom: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.accessible),
+                    Icon(Icons.arrow_right_alt),
+                    Icon(Icons.train),
+                    Icon(Icons.arrow_right_alt),
+                    Icon(Icons.accessible),
+                  ],
+                ),
+                SizedBox(
+                  height: 4.0,
+                ),
+                Text("£Price",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text("Time mins - X km",
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 4.0,
+                ),
+                Text("End time: ", textAlign: TextAlign.left,),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
+
   }
 }
 
