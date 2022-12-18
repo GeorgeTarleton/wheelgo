@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
 import 'package:wheelgo/src/widgets/RoutingPage.dart';
+import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 class MainMap extends StatefulWidget {
@@ -39,7 +40,8 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
-        SearchPage(),
+        // SearchPage(),
+        RoutingResultsPage(),
       ],
     );
   }
