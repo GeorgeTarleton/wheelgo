@@ -26,13 +26,24 @@ class _RoutingPageState extends State<RoutingPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconToggleButton(icon: Icon(Icons.train_outlined), selectedIcon: Icon(Icons.train), getDefaultStyle: filledButtonStyle),
+              SizedBox(width: 10),
               IconToggleButton(icon: Icon(Icons.accessible_forward_outlined), selectedIcon: Icon(Icons.accessible_forward), getDefaultStyle: filledButtonStyle),
             ],
           ),
-          SizedBox(
-            height: 16.0,
-          ),
+          SizedBox(height: 16),
           RestrictionPanel(),
+          SizedBox(height: 16),
+          TextButton(onPressed: () {}, child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+            ),
+            child: Text(
+              "Search",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+            ),
+          )),
         ]
       ),
     );
