@@ -4,6 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:wheelgo/src/enums/WheelchairRating.dart';
+import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
 import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
@@ -40,8 +42,15 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
+        const PlaceDetail(params: PlaceDetailParams(
+          name: "Place Name",
+          category: "Category",
+          wheelchairRating: WheelchairRating.yes,
+          address: "Address",
+          website: "Website",
+        )),
         // SearchPage(),
-        RoutingResultsPage(),
+        // RoutingResultsPage(),
       ],
     );
   }
