@@ -33,6 +33,7 @@ class RoutingResultsPage extends StatelessWidget {
                 ),
                 WalkingInfo(),
                 PublicTransportInfo(),
+                WalkingInfo(),
                 ArrivalInfo(),
                 ElevationInfo(),
               ],
@@ -184,12 +185,12 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
     double width = MediaQuery.of(context).size.width;
 
     return Container(width: width*2/3, child: ExpansionPanelList(
-      expansionCallback: (panelIndex, isExpanded) {
+      expansionCallback: (i, isExpanded) {
         setState(() {
           active = !active;
         });
       },
-      children: <ExpansionPanel>[
+      children: [
         ExpansionPanel(
             headerBuilder: (context, isExpanded) {
               return ListTile(title: Text("Directions"));
@@ -262,7 +263,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
               ],
             ),
             isExpanded: active,
-            canTapOnHeader: true
+            canTapOnHeader: true,
         )
       ],
     ));
@@ -276,34 +277,82 @@ class PublicTransportInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              Text("Public transport icon"),
-              Text("Station at time")
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Icon(Icons.train, color: Colors.white),
+              ),
+              SizedBox(width: 20.0),
+              Text("Station at time", style: TextStyle(fontSize: 18),),
             ],
           ),
           Row(
             children: [
-              Text("Divider"),
+              Container(
+                height: 100,
+                alignment: Alignment.topLeft,
+                child: const VerticalDivider(
+                  width: 44,
+                  thickness: 3,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(width: 20.0),
               Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Line 1 to Line 2 for X mins"),
-                  Text("Stops dropdown")
+                  Text("Line 1 to Line 2 for X mins",
+                          style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  StopsDropDown(),
                 ],
               ),
             ],
           ),
           Row(
             children: [
-              Text("Public transport icon"),
-              Text("Line 2 to Line 3 for X mins"),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Icon(Icons.train, color: Colors.white),
+              ),
+              SizedBox(width: 20.0),
+              Text("Change at station", style: TextStyle(fontSize: 18),),
             ],
           ),
           Row(
             children: [
-              Text("Divider"),
-              Text("Stops dropdown"),
+              Container(
+                height: 100,
+                alignment: Alignment.topLeft,
+                child: const VerticalDivider(
+                  width: 44,
+                  thickness: 3,
+                  color: Colors.grey,
+                ),
+              ),
+              SizedBox(width: 20.0),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Line 2 to Line 3 for X mins",
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  StopsDropDown(),
+                ],
+              ),
             ],
           ),
         ],
@@ -311,6 +360,67 @@ class PublicTransportInfo extends StatelessWidget {
     );
   }
 }
+
+
+class StopsDropDown extends StatefulWidget {
+  const StopsDropDown({super.key});
+  
+  @override
+  State<StatefulWidget> createState() => _StopsDropDownState();
+}
+
+class _StopsDropDownState extends State<StopsDropDown> {
+  bool active = false;
+  
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    return Container(width: width*2/3, child: ExpansionPanelList(
+      expansionCallback: (i, isExpanded) {
+        setState(() {
+          active = !active;
+        });
+      },
+      children: [
+        ExpansionPanel(
+            headerBuilder: (context, isExpanded) {
+              return ListTile(title: Text("Stops"));
+            },
+            body: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.only(left:12, right: 12, bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.arrow_forward),
+                    SizedBox(width: 10),
+                    Text("Stop 1"),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(left:12, right: 12, bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(Icons.arrow_forward),
+                    SizedBox(width: 10),
+                    Text("Stop 2"),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          isExpanded: active,
+          canTapOnHeader: true,
+        ),
+      ],
+    ));
+  }
+}
+
 
 class ArrivalInfo extends StatelessWidget {
   const ArrivalInfo({super.key});
