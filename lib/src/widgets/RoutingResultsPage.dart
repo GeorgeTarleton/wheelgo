@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wheelgo/src/widgets/RoutingPage.dart';
 
 class RoutingResultsPage extends StatelessWidget {
   const RoutingResultsPage({super.key});
@@ -35,7 +34,9 @@ class RoutingResultsPage extends StatelessWidget {
                 PublicTransportInfo(),
                 WalkingInfo(),
                 ArrivalInfo(),
+                SizedBox(height: 10),
                 ElevationInfo(),
+                SizedBox(height: 10),
               ],
             ),
           )
@@ -89,7 +90,7 @@ class KeyInfo extends StatelessWidget {
                 SizedBox(
                   height: 4.0,
                 ),
-                Text("End time: ", textAlign: TextAlign.left,),
+                Text("Arrival time: ", textAlign: TextAlign.left,),
               ],
             ),
           ],
@@ -430,8 +431,18 @@ class ArrivalInfo extends StatelessWidget {
     return Container(
       child: Row(
         children: [
-          Text("Arrival icon"),
-          Text("Arrived at X at time")
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Colors.green,
+            ),
+            child: Icon(Icons.location_on_outlined, color: Colors.white),
+          ),
+          SizedBox(width: 20.0),
+          Text("Arrived at location at time",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -443,17 +454,22 @@ class ElevationInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Up icon"),
-              Text("X m")
+              Icon(Icons.arrow_upward),
+              SizedBox(width: 5),
+              Text("X m"),
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Down icon"),
-              Text("X m")
+              Icon(Icons.arrow_downward),
+              SizedBox(width: 5),
+              Text("X m"),
             ],
           )
         ],
