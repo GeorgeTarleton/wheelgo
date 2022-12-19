@@ -26,7 +26,7 @@ class _RoutingPageState extends State<RoutingPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               IconToggleButton(icon: Icon(Icons.train_outlined), selectedIcon: Icon(Icons.train), getDefaultStyle: filledButtonStyle),
-              IconToggleButton(icon: Icon(Icons.accessible_outlined), selectedIcon: Icon(Icons.accessible), getDefaultStyle: filledButtonStyle),
+              IconToggleButton(icon: Icon(Icons.accessible_forward_outlined), selectedIcon: Icon(Icons.accessible_forward), getDefaultStyle: filledButtonStyle),
             ],
           ),
           SizedBox(
