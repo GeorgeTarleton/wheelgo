@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../parameters/DestinationCardParams.dart';
 import 'SearchBar.dart';
 
 class SearchPage extends StatefulWidget {
@@ -10,6 +11,27 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  // TODO Change this to be generated from the queries, rather than static
+  List<DestinationCardParams> results = [
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
+    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +41,17 @@ class _SearchPageState extends State<SearchPage> {
           padding: const EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
           child: SearchBar(prompt: "Search here"),
         ),
-        DestinationCard(name: "Name 1", address: "Address 1", distance: "10"),
-        DestinationCard(name: "Name 2", address: "Address 2", distance: "20"),
+        ListView.builder(
+            shrinkWrap: true,
+            physics: ClampingScrollPhysics(),
+            itemCount: results.length,
+            itemBuilder: (BuildContext context, int i) {
+              return DestinationCard(
+                name: results[i].name,
+                address: results[i].address,
+                distance: results[i].distance,
+              );
+            }),
       ],
     );
   }

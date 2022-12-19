@@ -23,6 +23,7 @@ class _MainMapState extends State<MainMap> {
   Widget _panel(ScrollController sc) {
     return ListView(
       controller: sc,
+      shrinkWrap: true,
       children: [
         const SizedBox(
           height: 12.0,
@@ -42,14 +43,14 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
-        const PlaceDetail(params: PlaceDetailParams(
-          name: "Place Name",
-          category: "Category",
-          wheelchairRating: WheelchairRating.yes,
-          address: "Address",
-          website: "Website",
-        )),
-        // SearchPage(),
+        // const PlaceDetail(params: PlaceDetailParams(
+        //   name: "Place Name",
+        //   category: "Category",
+        //   wheelchairRating: WheelchairRating.yes,
+        //   address: "Address",
+        //   website: "Website",
+        // )),
+        SearchPage(),
         // RoutingResultsPage(),
       ],
     );
