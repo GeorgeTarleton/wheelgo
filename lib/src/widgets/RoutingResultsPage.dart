@@ -34,7 +34,7 @@ class RoutingResultsPage extends StatelessWidget {
                 PublicTransportInfo(),
                 WalkingInfo(),
                 ArrivalInfo(),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 ElevationInfo(),
                 SizedBox(height: 10),
               ],
@@ -297,7 +297,7 @@ class PublicTransportInfo extends StatelessWidget {
           Row(
             children: [
               Container(
-                height: 100,
+                height: 125,
                 alignment: Alignment.topLeft,
                 child: const VerticalDivider(
                   width: 44,
@@ -310,8 +310,11 @@ class PublicTransportInfo extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Line 1 to Line 2 for X mins",
-                          style: TextStyle(fontSize: 16)),
+                  Text("X Line",
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  Text("Stop 1 to Stop 2 for X mins",
+                      style: TextStyle(fontSize: 16)),
                   SizedBox(height: 5),
                   StopsDropDown(),
                 ],
@@ -335,7 +338,7 @@ class PublicTransportInfo extends StatelessWidget {
           Row(
             children: [
               Container(
-                height: 100,
+                height: 140,
                 alignment: Alignment.topLeft,
                 child: const VerticalDivider(
                   width: 44,
@@ -348,13 +351,39 @@ class PublicTransportInfo extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Line 2 to Line 3 for X mins",
+                  Text("X Line",
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  Text("Stop 2 to Stop 3 for X mins",
                       style: TextStyle(fontSize: 16)),
                   SizedBox(height: 5),
                   StopsDropDown(),
                 ],
               ),
             ],
+          ),
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Icon(Icons.train, color: Colors.white),
+              ),
+              SizedBox(width: 20.0),
+              Text("Exit at station at time", style: TextStyle(fontSize: 18),),
+            ],
+          ),
+          Container(
+            height: 25,
+            alignment: Alignment.topLeft,
+            child: const VerticalDivider(
+              width: 44,
+              thickness: 3,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),

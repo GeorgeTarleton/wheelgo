@@ -50,8 +50,8 @@ class _MainMapState extends State<MainMap> {
         //   address: "Address",
         //   website: "Website",
         // )),
-        SearchPage(),
-        // RoutingResultsPage(),
+        // SearchPage(),
+        RoutingResultsPage(),
       ],
     );
   }

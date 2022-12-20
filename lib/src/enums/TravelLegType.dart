@@ -1,0 +1,4 @@
+enum TravelLegType {
+  wheeling,
+  publicTransport,
+}
