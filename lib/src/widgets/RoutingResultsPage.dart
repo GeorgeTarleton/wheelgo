@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wheelgo/src/enums/TravelLegType.dart';
+import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
+import 'package:wheelgo/src/parameters/PublicTransportRide.dart';
 import 'package:wheelgo/src/parameters/RoutingResultsPageParams.dart';
 import 'package:intl/intl.dart';
 import 'package:wheelgo/src/parameters/WheelingLeg.dart';
@@ -44,7 +46,9 @@ class RoutingResultsPage extends StatelessWidget {
                   ),
                 ),
                 WheelingInfo(leg: params.legs[0] as WheelingLeg),
-                PublicTransportInfo(),
+                PublicTransportInfo(
+                  leg: params.legs[1] as PublicTransportLeg,
+                ),
                 WheelingInfo(leg: params.legs[2] as WheelingLeg),
                 ArrivalInfo(),
                 SizedBox(height: 20),
@@ -303,112 +307,35 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
 
 
 class PublicTransportInfo extends StatelessWidget {
-  const PublicTransportInfo({super.key});
+  const PublicTransportInfo({super.key, required this.leg});
+
+  final PublicTransportLeg leg;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
+    assert(leg.rides.isNotEmpty);
+
+    PublicTransportRide firstRide = leg.rides[0];
+    String nextStation = leg.rides.length > 1 ? leg.rides[1].startStation : leg.finalStation;
+    List<Widget> steps = [
+      Row(
         children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Icon(Icons.train, color: Colors.white),
-              ),
-              SizedBox(width: 20.0),
-              Text("Station at time", style: TextStyle(fontSize: 18),),
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                height: 125,
-                alignment: Alignment.topLeft,
-                child: const VerticalDivider(
-                  width: 44,
-                  thickness: 3,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(width: 20.0),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("X Line",
-                      style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 5),
-                  Text("Stop 1 to Stop 2 for X mins",
-                      style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 5),
-                  StopsDropDown(),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Icon(Icons.train, color: Colors.white),
-              ),
-              SizedBox(width: 20.0),
-              Text("Change at station", style: TextStyle(fontSize: 18),),
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                height: 140,
-                alignment: Alignment.topLeft,
-                child: const VerticalDivider(
-                  width: 44,
-                  thickness: 3,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(width: 20.0),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("X Line",
-                      style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 5),
-                  Text("Stop 2 to Stop 3 for X mins",
-                      style: TextStyle(fontSize: 16)),
-                  SizedBox(height: 5),
-                  StopsDropDown(),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Icon(Icons.train, color: Colors.white),
-              ),
-              SizedBox(width: 20.0),
-              Text("Exit at station at time", style: TextStyle(fontSize: 18),),
-            ],
-          ),
           Container(
-            height: 25,
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Icon(Icons.train, color: Colors.white),
+          ),
+          SizedBox(width: 20.0),
+          Text("${firstRide.startStation} at ${firstRide.leavingTime.format(context)}", style: TextStyle(fontSize: 18)),
+        ],
+      ),
+      Row(
+        children: [
+          Container(
+            height: 125,
             alignment: Alignment.topLeft,
             child: const VerticalDivider(
               width: 44,
@@ -416,15 +343,110 @@ class PublicTransportInfo extends StatelessWidget {
               color: Colors.grey,
             ),
           ),
+          SizedBox(width: 20.0),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("${firstRide.line} Line",
+                  style: TextStyle(fontSize: 16)),
+              SizedBox(height: 5),
+              Text("${firstRide.startStation} to $nextStation for ${firstRide.duration.inMinutes} mins",
+                  style: TextStyle(fontSize: 16)),
+              SizedBox(height: 5),
+              StopsDropDown(stops: firstRide.stops),
+            ],
+          ),
         ],
       ),
+    ];
+
+    for (int i=1; i < leg.rides.length; i++) {
+      String nextStation = leg.rides.length > i+1 ? leg.rides[i+1].startStation : leg.finalStation;
+
+      steps.addAll([
+        Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Icon(Icons.train, color: Colors.white),
+            ),
+            SizedBox(width: 20.0),
+            Text("Change at ${leg.rides[i].startStation}", style: TextStyle(fontSize: 18)),
+          ],
+        ),
+        Row(
+          children: [
+            Container(
+              height: 140,
+              alignment: Alignment.topLeft,
+              child: const VerticalDivider(
+                width: 44,
+                thickness: 3,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(width: 20.0),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("${leg.rides[i].line} Line",
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 5),
+                Text("${leg.rides[i].startStation} to $nextStation for ${leg.rides[i].duration.inMinutes} mins",
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 5),
+                StopsDropDown(stops: leg.rides[i].stops),
+              ],
+            ),
+          ],
+        ),
+      ]);
+    }
+
+    steps.addAll([
+      Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Icon(Icons.train, color: Colors.white),
+          ),
+          SizedBox(width: 20.0),
+          Text("Exit at ${leg.finalStation} at ${leg.arrivalTime.format(context)}", style: TextStyle(fontSize: 18)),
+        ],
+      ),
+      Container(
+        height: 25,
+        alignment: Alignment.topLeft,
+        child: const VerticalDivider(
+          width: 44,
+          thickness: 3,
+          color: Colors.grey,
+        ),
+      ),
+    ]);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: steps,
     );
   }
 }
 
 
 class StopsDropDown extends StatefulWidget {
-  const StopsDropDown({super.key});
+  const StopsDropDown({super.key, required this.stops});
+
+  final List<String> stops;
   
   @override
   State<StatefulWidget> createState() => _StopsDropDownState();
@@ -449,32 +471,23 @@ class _StopsDropDownState extends State<StopsDropDown> {
               return ListTile(title: Text("Stops"));
             },
             body: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.only(left:12, right: 12, bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.arrow_forward),
-                    SizedBox(width: 10),
-                    Text("Stop 1"),
-                  ],
-                ),
+            children: widget.stops
+                    .map(
+                      (stop) => Container(
+                        padding:
+                            EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Icon(Icons.arrow_forward),
+                            SizedBox(width: 10),
+                            Text(stop),
+                          ],
+                        ),
+                      ),
+                    ).toList(),
               ),
-              Container(
-                padding: EdgeInsets.only(left:12, right: 12, bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(Icons.arrow_forward),
-                    SizedBox(width: 10),
-                    Text("Stop 2"),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          isExpanded: active,
+              isExpanded: active,
           canTapOnHeader: true,
         ),
       ],

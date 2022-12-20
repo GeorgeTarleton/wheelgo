@@ -75,9 +75,9 @@ class _MainMapState extends State<MainMap> {
                   WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
                 ],
             ),
-            PublicTransportLeg(finalStation: "Final Station", rides: [
-              PublicTransportRide(startStation: "Start Station", line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-              PublicTransportRide(startStation: "Next Station", line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+            PublicTransportLeg(finalStation: "Final Station", arrivalTime: TimeOfDay(hour: 11, minute: 5), rides: [
+              PublicTransportRide(startStation: "Start Station", leavingTime: TimeOfDay(hour: 10, minute: 30), line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+              PublicTransportRide(startStation: "Next Station", leavingTime: TimeOfDay(hour: 10, minute: 50), line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
             ]),
             WheelingLeg(
               duration: Duration(minutes: 20),
