@@ -16,6 +16,38 @@ class RoutingResultsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> sections = [
+      StartInfo(start: params.start),
+      Container(
+        height: 25,
+        alignment: Alignment.topLeft,
+        child: const VerticalDivider(
+          width: 44,
+          thickness: 3,
+          color: Colors.grey,
+        ),
+      ),
+    ];
+
+    for (final leg in params.legs) {
+      switch (leg.getType()) {
+        case TravelLegType.wheeling:
+          sections.add(WheelingInfo(leg: leg as WheelingLeg));
+          break;
+        case TravelLegType.publicTransport:
+          sections.add(PublicTransportInfo(leg: leg as PublicTransportLeg));
+          break;
+        case TravelLegType.other:
+          throw Exception("Unsupported travel type");
+      }
+    }
+
+    sections.addAll([
+      ArrivalInfo(destination: params.destination, arrivalTime: params.arrivalTime),
+      SizedBox(height: 20),
+      ElevationInfo(up: 5, down: 3),
+      SizedBox(height: 10),
+    ]);
 
     return ListView(
         shrinkWrap: true,
@@ -34,27 +66,7 @@ class RoutingResultsPage extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Column(
-              children: [
-                StartInfo(start: params.start),
-                Container(
-                  height: 25,
-                  alignment: Alignment.topLeft,
-                  child: const VerticalDivider(
-                    width: 44,
-                    thickness: 3,
-                    color: Colors.grey,
-                  ),
-                ),
-                WheelingInfo(leg: params.legs[0] as WheelingLeg),
-                PublicTransportInfo(
-                  leg: params.legs[1] as PublicTransportLeg,
-                ),
-                WheelingInfo(leg: params.legs[2] as WheelingLeg),
-                ArrivalInfo(destination: params.destination, arrivalTime: params.arrivalTime),
-                SizedBox(height: 20),
-                ElevationInfo(up: 5, down: 3),
-                SizedBox(height: 10),
-              ],
+              children: sections,
             ),
           )
         ]
@@ -518,7 +530,7 @@ class ArrivalInfo extends StatelessWidget {
           SizedBox(width: 20.0),
           Text.rich(TextSpan(
             children: [
-              TextSpan(text: "Arrived at ",
+              TextSpan(text: "Arrive at ",
                   style: TextStyle(fontSize: 18)),
               TextSpan(text: destination,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
