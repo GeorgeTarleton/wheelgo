@@ -50,9 +50,9 @@ class RoutingResultsPage extends StatelessWidget {
                   leg: params.legs[1] as PublicTransportLeg,
                 ),
                 WheelingInfo(leg: params.legs[2] as WheelingLeg),
-                ArrivalInfo(),
+                ArrivalInfo(destination: params.destination, arrivalTime: params.arrivalTime),
                 SizedBox(height: 20),
-                ElevationInfo(),
+                ElevationInfo(up: 5, down: 3),
                 SizedBox(height: 10),
               ],
             ),
@@ -497,7 +497,10 @@ class _StopsDropDownState extends State<StopsDropDown> {
 
 
 class ArrivalInfo extends StatelessWidget {
-  const ArrivalInfo({super.key});
+  const ArrivalInfo({super.key, required this.destination, required this.arrivalTime});
+
+  final String destination;
+  final TimeOfDay arrivalTime;
 
   @override
   Widget build(BuildContext context) {
@@ -513,9 +516,16 @@ class ArrivalInfo extends StatelessWidget {
             child: Icon(Icons.location_on_outlined, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text("Arrived at location at time",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
+          Text.rich(TextSpan(
+            children: [
+              TextSpan(text: "Arrived at ",
+                  style: TextStyle(fontSize: 18)),
+              TextSpan(text: destination,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              TextSpan(text: " at ${arrivalTime.format(context)}",
+                  style: TextStyle(fontSize: 18)),
+            ]
+          )),
         ],
       ),
     );
@@ -523,6 +533,11 @@ class ArrivalInfo extends StatelessWidget {
 }
 
 class ElevationInfo extends StatelessWidget {
+  const ElevationInfo({super.key, required this.up, required this.down});
+
+  final double up;
+  final double down;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -534,7 +549,7 @@ class ElevationInfo extends StatelessWidget {
             children: [
               Icon(Icons.arrow_upward),
               SizedBox(width: 5),
-              Text("X m"),
+              Text("$up m"),
             ],
           ),
           Row(
@@ -542,7 +557,7 @@ class ElevationInfo extends StatelessWidget {
             children: [
               Icon(Icons.arrow_downward),
               SizedBox(width: 5),
-              Text("X m"),
+              Text("$down m"),
             ],
           )
         ],

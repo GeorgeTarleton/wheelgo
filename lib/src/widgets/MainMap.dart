@@ -60,7 +60,7 @@ class _MainMapState extends State<MainMap> {
         const RoutingResultsPage(params: RoutingResultsPageParams(
           duration: Duration(hours: 1, minutes: 5),
           distance: 20,
-          arrivalTime: TimeOfDay(hour: 10, minute: 5),
+          arrivalTime: TimeOfDay(hour: 11, minute: 5),
           price: 5.20,
           start: "Start Location",
           destination: "Destination Location",
