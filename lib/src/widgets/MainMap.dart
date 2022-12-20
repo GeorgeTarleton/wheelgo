@@ -5,7 +5,13 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
+import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
+import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
+import 'package:wheelgo/src/parameters/PublicTransportRide.dart';
+import 'package:wheelgo/src/parameters/RoutingResultsPageParams.dart';
+import 'package:wheelgo/src/parameters/WheelingDirection.dart';
+import 'package:wheelgo/src/parameters/WheelingLeg.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
 import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
@@ -51,7 +57,39 @@ class _MainMapState extends State<MainMap> {
         //   website: "Website",
         // )),
         // SearchPage(),
-        RoutingResultsPage(),
+        const RoutingResultsPage(params: RoutingResultsPageParams(
+          duration: Duration(hours: 1, minutes: 5),
+          distance: 20,
+          arrivalTime: TimeOfDay(hour: 10, minute: 5),
+          price: 5.20,
+          start: "Start Location",
+          destination: "Destination Location",
+          elevation: Elevation(up: 10, down: 8),
+          legs: [
+            WheelingLeg(
+                duration: Duration(minutes: 20), 
+                distance: 5, 
+                destination: "Partway Destination", 
+                directions: [
+                  WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
+                  WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
+                ],
+            ),
+            PublicTransportLeg(finalStation: "Final Station", rides: [
+              PublicTransportRide(startStation: "Start Station", line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+              PublicTransportRide(startStation: "Next Station", line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+            ]),
+            WheelingLeg(
+              duration: Duration(minutes: 20),
+              distance: 5,
+              destination: "Partway Destination",
+              directions: [
+                WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
+                WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
+              ],
+            ),
+          ],
+        )),
       ],
     );
   }

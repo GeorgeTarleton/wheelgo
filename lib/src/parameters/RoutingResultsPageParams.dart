@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../interfaces/TravelLeg.dart';
 import 'Elevation.dart';
 
@@ -15,7 +17,7 @@ class RoutingResultsPageParams {
 
   final Duration duration;
   final double distance;
-  final DateTime arrivalTime;
+  final TimeOfDay arrivalTime;
   final double? price;
   final String start;
   final String destination;

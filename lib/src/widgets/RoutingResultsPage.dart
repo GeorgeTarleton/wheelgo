@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:wheelgo/src/enums/TravelLegType.dart';
+import 'package:wheelgo/src/parameters/RoutingResultsPageParams.dart';
+import 'package:intl/intl.dart';
+import 'package:wheelgo/src/parameters/WheelingLeg.dart';
+
+import '../interfaces/TravelLeg.dart';
+import '../parameters/WheelingDirection.dart';
 
 class RoutingResultsPage extends StatelessWidget {
-  const RoutingResultsPage({super.key});
+  const RoutingResultsPage({super.key, required this.params});
+
+  final RoutingResultsPageParams params;
 
   @override
   Widget build(BuildContext context) {
@@ -11,16 +20,20 @@ class RoutingResultsPage extends StatelessWidget {
         children: [
           Container(
             padding: EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
-            child: KeyInfo(),
+            child: KeyInfo(
+              duration: params.duration,
+              distance: params.distance,
+              arrivalTime: params.arrivalTime,
+              price: params.price,
+              legs: params.legs,
+            ),
           ),
-          SizedBox(
-            height: 4.0,
-          ),
+          SizedBox(height: 4.0),
           Container(
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Column(
               children: [
-                StartInfo(),
+                StartInfo(start: params.start),
                 Container(
                   height: 25,
                   alignment: Alignment.topLeft,
@@ -30,9 +43,9 @@ class RoutingResultsPage extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                WalkingInfo(),
+                WheelingInfo(leg: params.legs[0] as WheelingLeg),
                 PublicTransportInfo(),
-                WalkingInfo(),
+                WheelingInfo(leg: params.legs[2] as WheelingLeg),
                 ArrivalInfo(),
                 SizedBox(height: 20),
                 ElevationInfo(),
@@ -45,11 +58,49 @@ class RoutingResultsPage extends StatelessWidget {
   }
 }
 
+
 class KeyInfo extends StatelessWidget {
-  const KeyInfo({super.key});
+  const KeyInfo({
+    super.key,
+    required this.duration,
+    required this.distance,
+    required this.arrivalTime,
+    this.price,
+    required this.legs,
+  });
+
+  final Duration duration;
+  final double distance;
+  final TimeOfDay arrivalTime;
+  final double? price;
+  final List<TravelLeg> legs;
+
+  Icon getIcon(TravelLegType type) {
+    switch (type) {
+      case TravelLegType.wheeling:
+        return const Icon(Icons.accessible_forward);
+      case TravelLegType.publicTransport:
+        return const Icon(Icons.train);
+      case TravelLegType.other:
+        return const Icon(Icons.arrow_circle_right);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final currencyFormat = NumberFormat.simpleCurrency(locale: "en_GB");
+
+    List<Icon> legIcons = [];
+    if (legs.isNotEmpty) {
+      for (int i=0; i < legs.length-1; i++) {
+        TravelLegType type = legs[i].getType();
+        legIcons.add(getIcon(type));
+        legIcons.add(const Icon(Icons.arrow_right_alt));
+      }
+
+      legIcons.add(getIcon(legs[legs.length-1].getType()));
+    }
+
     return Material(
       elevation: 10,
       borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -63,19 +114,9 @@ class KeyInfo extends StatelessWidget {
           children: [
             Column(
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.accessible_forward),
-                    Icon(Icons.arrow_right_alt),
-                    Icon(Icons.train),
-                    Icon(Icons.arrow_right_alt),
-                    Icon(Icons.accessible_forward),
-                  ],
-                ),
-                SizedBox(
-                  height: 4.0,
-                ),
-                Text("£Price",
+                Row(children: legIcons),
+                SizedBox(height: 4.0),
+                Text(currencyFormat.format(price),
                   textAlign: TextAlign.left,
                   style: TextStyle(fontSize: 12),
                 ),
@@ -83,26 +124,29 @@ class KeyInfo extends StatelessWidget {
             ),
             Column(
               children: [
-                Text("Time mins - X km",
+                Text("${duration.inMinutes} mins - ${distance.round()} km",
                   textAlign: TextAlign.left,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(
-                  height: 4.0,
-                ),
-                Text("Arrival time: ", textAlign: TextAlign.left,),
+                SizedBox(height: 4.0),
+                Text("Arrival time: ${arrivalTime.format(context)}", textAlign: TextAlign.left),
               ],
             ),
           ],
         ),
       ),
     );
-
   }
 }
 
+
 class StartInfo extends StatelessWidget {
-  const StartInfo({super.key});
+  const StartInfo({
+    super.key,
+    required this.start,
+  });
+
+  final String start;
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +162,7 @@ class StartInfo extends StatelessWidget {
             child: Icon(Icons.location_on_outlined, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text("Start location",
+          Text(start,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ],
@@ -127,52 +171,55 @@ class StartInfo extends StatelessWidget {
   }
 }
 
-class WalkingInfo extends StatelessWidget {
-  const WalkingInfo({super.key});
+class WheelingInfo extends StatelessWidget {
+  const WheelingInfo({super.key, required this.leg});
+
+  final WheelingLeg leg;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: Icon(Icons.accessible_forward, color: Colors.white),
-                ),
-                SizedBox(width: 20.0),
-                Text("Wheeling time and distance", style: TextStyle(fontSize: 18),),
-              ],
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Icon(Icons.accessible_forward, color: Colors.white),
             ),
-            Row(
-              children: [
-                Container(
-                  height: 80,
-                  alignment: Alignment.topLeft,
-                  child: const VerticalDivider(
-                    width: 44,
-                    thickness: 3,
-                    color: Colors.grey,
-                  ),
-                ),
-                SizedBox(width: 20.0),
-                DirectionsDropDown(),
-              ],
-            ),
+            SizedBox(width: 20.0),
+            Text("Travel for ${leg.duration.inMinutes} minutes (${leg.distance} km)", style: TextStyle(fontSize: 18)),
           ],
         ),
-      );
+        Row(
+          children: [
+            Container(
+              height: 80,
+              alignment: Alignment.topLeft,
+              child: const VerticalDivider(
+                width: 44,
+                thickness: 3,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(width: 20.0),
+            DirectionsDropDown(directions: leg.directions, destination: leg.destination),
+          ],
+        ),
+      ],
+    );
   }
 }
 
 class DirectionsDropDown extends StatefulWidget {
-  const DirectionsDropDown({super.key});
+  const DirectionsDropDown({super.key, required this.directions, required this.destination});
+
+  final List<WheelingDirection> directions;
+  final String destination;
 
   @override
   State<StatefulWidget> createState() => _DirectionsDropDownState();
@@ -185,7 +232,54 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
 
-    return Container(width: width*2/3, child: ExpansionPanelList(
+    List<Widget> directionSteps = [];
+    for (final direction in widget.directions) {
+      directionSteps.add(
+        Align(alignment: Alignment.topLeft,
+            child: Container(padding: EdgeInsets.all(12),
+                child: Text(direction.description, style: TextStyle(fontSize: 16))))
+      );
+      directionSteps.add(
+          Container(
+            padding: EdgeInsets.only(left: 12, right: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("${direction.distance} km", style: TextStyle(fontSize: 16)),
+                Text("${direction.duration.inMinutes} mins, ${direction.duration.inSeconds % 60} secs", style: TextStyle(fontSize: 16))
+              ],
+            ),
+          )
+      );
+      directionSteps.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              width: 160,
+              height: 3,
+              decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.all(Radius.circular(12.0))),
+            ),
+          ],
+        ),
+      );
+    }
+
+    directionSteps.add(Container(
+      padding: EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Icon(Icons.location_on),
+          SizedBox(width: 20.0),
+          Text("Arrive at ${widget.destination}", style: TextStyle(fontSize: 16))
+        ],
+      ),
+    ));
+
+    return SizedBox(width: width*2/3, child: ExpansionPanelList(
       expansionCallback: (i, isExpanded) {
         setState(() {
           active = !active;
@@ -197,71 +291,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
               return ListTile(title: Text("Directions"));
             },
             body: Column(
-              children: [
-                Align(alignment: Alignment.topLeft,
-                  child: Container(padding: EdgeInsets.all(12),
-                      child: Text("Direction1", style: TextStyle(fontSize: 16),))),
-                Container(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Distance: Xm", style: TextStyle(fontSize: 16)),
-                      Text("Time Xmins,Ysecs", style: TextStyle(fontSize: 16))
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 10),
-                      width: 160,
-                      height: 3,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                    ),
-                  ],
-                ),
-
-                Align(alignment: Alignment.topLeft,
-                    child: Container(padding: EdgeInsets.all(12),
-                        child: Text("Direction2", style: TextStyle(fontSize: 16),))),
-                Container(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Distance: Xm", style: TextStyle(fontSize: 16)),
-                      Text("Time Xmins,Ysecs", style: TextStyle(fontSize: 16))
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 10),
-                      width: 160,
-                      height: 3,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.all(Radius.circular(12.0))),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.location_on),
-                      SizedBox(width: 20.0),
-                      Text("Arrive at X", style: TextStyle(fontSize: 16))
-                    ],
-                  ),
-                ),
-              ],
+              children: directionSteps,
             ),
             isExpanded: active,
             canTapOnHeader: true,
@@ -270,6 +300,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
     ));
   }
 }
+
 
 class PublicTransportInfo extends StatelessWidget {
   const PublicTransportInfo({super.key});

@@ -6,11 +6,11 @@ import 'PublicTransportRide.dart';
 class PublicTransportLeg implements TravelLeg {
   const PublicTransportLeg({
     required this.finalStation,
-    required this.legs,
+    required this.rides,
   });
 
   final String finalStation;
-  final List<PublicTransportRide> legs;
+  final List<PublicTransportRide> rides;
 
   @override
   TravelLegType getType() {
