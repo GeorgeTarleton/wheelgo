@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:backdrop/backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -17,6 +19,47 @@ import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
+const examplePDParams = PlaceDetailParams(
+  name: "Place Name",
+  category: "Category",
+  wheelchairRating: WheelchairRating.yes,
+  address: "Address",
+  website: "Website",
+);
+const exampleRRParams = RoutingResultsPageParams(
+  duration: Duration(hours: 1, minutes: 5),
+  distance: 20,
+  arrivalTime: TimeOfDay(hour: 11, minute: 5),
+  price: 5.20,
+  start: "Start Location",
+  destination: "Destination Location",
+  elevation: Elevation(up: 10, down: 8),
+  legs: [
+    WheelingLeg(
+      duration: Duration(minutes: 20),
+      distance: 5,
+      destination: "Partway Destination",
+      directions: [
+        WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
+        WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
+      ],
+    ),
+    PublicTransportLeg(finalStation: "Final Station", arrivalTime: TimeOfDay(hour: 11, minute: 5), rides: [
+      PublicTransportRide(startStation: "Start Station", leavingTime: TimeOfDay(hour: 10, minute: 30), line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+      PublicTransportRide(startStation: "Next Station", leavingTime: TimeOfDay(hour: 10, minute: 50), line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
+    ]),
+    WheelingLeg(
+      duration: Duration(minutes: 20),
+      distance: 5,
+      destination: "Partway Destination",
+      directions: [
+        WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
+        WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
+      ],
+    ),
+  ],
+);
+
 class MainMap extends StatefulWidget {
   const MainMap({super.key});
 
@@ -25,6 +68,32 @@ class MainMap extends StatefulWidget {
 }
 
 class _MainMapState extends State<MainMap> {
+  Widget currentPage = SearchPage();
+  bool backButtonEnabled = false;
+
+  void showRoutingResults() {
+    // TODO Send off form info as params
+    // TODO Do querying and passing (has example data for now)
+
+    currentPage = RoutingResultsPage(params: exampleRRParams);
+    backButtonEnabled = true;
+    setState(() {});
+  }
+
+  void showPlaceDetailInfo() {
+    // TODO Add identifying info as params
+    // TODO Do the querying/passing etc. (has example data for now)
+
+    currentPage = PlaceDetail(params: examplePDParams);
+    backButtonEnabled = true;
+    setState(() {});
+  }
+
+  void showSearchPage() {
+    currentPage = SearchPage();
+    backButtonEnabled = false;
+    setState(() {});
+  }
 
   Widget _panel(ScrollController sc) {
     return ListView(
@@ -49,47 +118,7 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
-        // const PlaceDetail(params: PlaceDetailParams(
-        //   name: "Place Name",
-        //   category: "Category",
-        //   wheelchairRating: WheelchairRating.yes,
-        //   address: "Address",
-        //   website: "Website",
-        // )),
-        // SearchPage(),
-        const RoutingResultsPage(params: RoutingResultsPageParams(
-          duration: Duration(hours: 1, minutes: 5),
-          distance: 20,
-          arrivalTime: TimeOfDay(hour: 11, minute: 5),
-          price: 5.20,
-          start: "Start Location",
-          destination: "Destination Location",
-          elevation: Elevation(up: 10, down: 8),
-          legs: [
-            WheelingLeg(
-                duration: Duration(minutes: 20), 
-                distance: 5, 
-                destination: "Partway Destination", 
-                directions: [
-                  WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-                  WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-                ],
-            ),
-            PublicTransportLeg(finalStation: "Final Station", arrivalTime: TimeOfDay(hour: 11, minute: 5), rides: [
-              PublicTransportRide(startStation: "Start Station", leavingTime: TimeOfDay(hour: 10, minute: 30), line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-              PublicTransportRide(startStation: "Next Station", leavingTime: TimeOfDay(hour: 10, minute: 50), line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-            ]),
-            WheelingLeg(
-              duration: Duration(minutes: 20),
-              distance: 5,
-              destination: "Partway Destination",
-              directions: [
-                WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-                WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-              ],
-            ),
-          ],
-        )),
+        currentPage,
       ],
     );
   }
@@ -147,10 +176,13 @@ class _MainMapState extends State<MainMap> {
                     point: LatLng(51.5013562, -0.1249302),
                     width: 50,
                     height: 50,
-                    builder: (context) => const Icon(
-                      Icons.pin_drop,
-                      size: 50,
-                      color: Colors.blueAccent,
+                    builder: (ctx) => GestureDetector(
+                      onTap: () => showPlaceDetailInfo(),
+                      child:  const Icon(
+                        Icons.location_pin,
+                        size: 40,
+                        color: Colors.blue,
+                      ),
                     ),
                   ),
                   Marker(
@@ -158,9 +190,9 @@ class _MainMapState extends State<MainMap> {
                     width: 50,
                     height: 50,
                     builder: (context) => const Icon(
-                      Icons.pin_drop,
-                      size: 50,
-                      color: Colors.blueAccent,
+                      Icons.location_pin,
+                      size: 40,
+                      color: Colors.blue,
                     ),
                   ),
                 ],
@@ -176,6 +208,17 @@ class _MainMapState extends State<MainMap> {
                 },
               ),
             ),
+            backButtonEnabled ? Container(
+              margin: EdgeInsets.all(10),
+              child: ElevatedButton(
+                onPressed: () => showSearchPage(),
+                child: Icon(Icons.arrow_back_outlined, size: 40),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(10),
+                ),
+              ),
+            ) : Container(),
           ],
         ),
       ),
