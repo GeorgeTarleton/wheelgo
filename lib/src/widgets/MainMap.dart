@@ -6,6 +6,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
@@ -14,51 +15,15 @@ import 'package:wheelgo/src/parameters/PublicTransportRide.dart';
 import 'package:wheelgo/src/parameters/RoutingResultsPageParams.dart';
 import 'package:wheelgo/src/parameters/WheelingDirection.dart';
 import 'package:wheelgo/src/parameters/WheelingLeg.dart';
+import 'package:wheelgo/src/services/QueryService.dart';
+import 'package:wheelgo/src/widgets/AttractionMarker.dart';
 import 'package:wheelgo/src/widgets/PlaceDetail.dart';
 import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
-const examplePDParams = PlaceDetailParams(
-  name: "Place Name",
-  category: "Category",
-  wheelchairRating: WheelchairRating.yes,
-  address: "Address",
-  website: "Website",
-);
-const exampleRRParams = RoutingResultsPageParams(
-  duration: Duration(hours: 1, minutes: 5),
-  distance: 20,
-  arrivalTime: TimeOfDay(hour: 11, minute: 5),
-  price: 5.20,
-  start: "Start Location",
-  destination: "Destination Location",
-  elevation: Elevation(up: 10, down: 8),
-  legs: [
-    WheelingLeg(
-      duration: Duration(minutes: 20),
-      distance: 5,
-      destination: "Partway Destination",
-      directions: [
-        WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-        WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-      ],
-    ),
-    PublicTransportLeg(finalStation: "Final Station", arrivalTime: TimeOfDay(hour: 11, minute: 5), rides: [
-      PublicTransportRide(startStation: "Start Station", leavingTime: TimeOfDay(hour: 10, minute: 30), line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-      PublicTransportRide(startStation: "Next Station", leavingTime: TimeOfDay(hour: 10, minute: 50), line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-    ]),
-    WheelingLeg(
-      duration: Duration(minutes: 20),
-      distance: 5,
-      destination: "Partway Destination",
-      directions: [
-        WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-        WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-      ],
-    ),
-  ],
-);
+QueryService queryService = QueryService();
+
 
 class MainMap extends StatefulWidget {
   const MainMap({super.key});
@@ -80,11 +45,12 @@ class _MainMapState extends State<MainMap> {
     setState(() {});
   }
 
-  void showPlaceDetailInfo() {
+  void showPlaceDetailInfo(int id, AttractionType type) {
     // TODO Add identifying info as params
     // TODO Do the querying/passing etc. (has example data for now)
+    PlaceDetailParams params = queryService.getPlaceDetail(id, type);
 
-    currentPage = PlaceDetail(params: examplePDParams);
+    currentPage = PlaceDetail(params: params);
     backButtonEnabled = true;
     setState(() {});
   }
@@ -177,7 +143,7 @@ class _MainMapState extends State<MainMap> {
                     width: 50,
                     height: 50,
                     builder: (ctx) => GestureDetector(
-                      onTap: () => showPlaceDetailInfo(),
+                      onTap: () => showPlaceDetailInfo(5, AttractionType.node),
                       child:  const Icon(
                         Icons.location_pin,
                         size: 40,

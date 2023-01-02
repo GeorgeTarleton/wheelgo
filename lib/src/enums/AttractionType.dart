@@ -1,0 +1,4 @@
+enum AttractionType {
+  node,
+  way,
+}
