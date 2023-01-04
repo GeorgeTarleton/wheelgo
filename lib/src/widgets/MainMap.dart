@@ -26,7 +26,7 @@ import '../parameters/MarkerInfo.dart';
 
 QueryService queryService = QueryService();
 const double markerSize = 50;
-const double selectedMarkerSize = markerSize*1.5;
+const double selectedMarkerSize = markerSize*1.2;
 
 
 class MainMap extends StatefulWidget {
@@ -39,9 +39,9 @@ class MainMap extends StatefulWidget {
 class _MainMapState extends State<MainMap> {
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
-  List<Marker> markers = [];
+  List<Marker> markers = queryService.getMarkers();
   Marker? selectedMarker;
-  Map<Marker, MarkerInfo> markerInfoMap = {};
+
 
   void showRoutingResults() {
     // TODO Send off form info as params
@@ -64,7 +64,7 @@ class _MainMapState extends State<MainMap> {
 
   void showSearchPage() {
     if (selectedMarker != null) {
-      MarkerInfo? markerInfo = markerInfoMap[selectedMarker];
+      MarkerInfo? markerInfo = queryService.markerInfoMap[selectedMarker];
       if (markerInfo != null) {
         markerInfo.selected = false;
 
@@ -78,11 +78,14 @@ class _MainMapState extends State<MainMap> {
             color: Colors.blue,
           ),
         );
-        markerInfoMap[newMarker] = markerInfo;
-        markerInfoMap.remove(selectedMarker);
+        queryService.markerInfoMap[newMarker] = markerInfo;
+        queryService.markerInfoMap.remove(selectedMarker);
 
-        markers.remove(selectedMarker);
-        markers.add(newMarker);
+        setState(() {
+          markers.remove(selectedMarker);
+          markers.add(newMarker);
+          markers = markers.toList();
+        });
       }
 
       selectedMarker = null;
@@ -93,33 +96,7 @@ class _MainMapState extends State<MainMap> {
     setState(() {});
   }
 
-  List<Marker> getMarkers() {
-    Marker marker1 = Marker(
-      point: LatLng(51.5013562, -0.1249302),
-      width: markerSize,
-      height: markerSize,
-      builder: (ctx) => const Icon(
-        Icons.location_pin,
-        size: markerSize,
-        color: Colors.blue,
-      ),
-    );
-    markerInfoMap[marker1] = MarkerInfo(id: 1, type: AttractionType.node);
 
-    Marker marker2 = Marker(
-      point: LatLng(51.5032704, -0.1196257),
-      width: markerSize,
-      height: markerSize,
-      builder: (context) => const Icon(
-        Icons.location_pin,
-        size: markerSize,
-        color: Colors.blue,
-      ),
-    );
-    markerInfoMap[marker2] = MarkerInfo(id: 2, type: AttractionType.way);
-
-    return [marker1, marker2];
-  }
 
   Widget _panel(ScrollController sc) {
     return ListView(
@@ -149,15 +126,19 @@ class _MainMapState extends State<MainMap> {
     );
   }
 
+  void removeMarker() {
+    setState(() {
+      markers.removeLast();
+      markers = markers.toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     BorderRadiusGeometry radius = const BorderRadius.only(
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
-    setState(() {
-      markers = getMarkers();
-    });
 
     return BackdropScaffold(
       appBar: BackdropAppBar(
@@ -202,7 +183,7 @@ class _MainMapState extends State<MainMap> {
                 ),
                 markers: markers,
                 onMarkerTap: (marker) {
-                  MarkerInfo? markerInfo = markerInfoMap[marker];
+                  MarkerInfo? markerInfo = queryService.markerInfoMap[marker];
                   if (markerInfo != null && selectedMarker == null) {
                     markerInfo.selected = true;
 
@@ -218,11 +199,14 @@ class _MainMapState extends State<MainMap> {
                     );
                     selectedMarker = newMarker;
 
-                    markerInfoMap[newMarker] = markerInfo;
-                    markerInfoMap.remove(marker);
+                    queryService.markerInfoMap[newMarker] = markerInfo;
+                    queryService.markerInfoMap.remove(marker);
 
-                    markers.remove(marker);
-                    markers.add(newMarker);
+                    setState(() {
+                      markers.remove(marker);
+                      markers.add(newMarker);
+                      markers = markers.toList();
+                    });
 
                     showPlaceDetailInfo(markerInfo.id, markerInfo.type);
                   }
@@ -250,6 +234,8 @@ class _MainMapState extends State<MainMap> {
                 ),
               ),
             ) : Container(),
+            // ElevatedButton(onPressed: removeMarker,
+            //   child: Icon(Icons.arrow_circle_right))
           ],
         ),
       ),
