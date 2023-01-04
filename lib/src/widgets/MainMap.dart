@@ -22,7 +22,11 @@ import 'package:wheelgo/src/widgets/RoutingPage.dart';
 import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
+import '../parameters/MarkerInfo.dart';
+
 QueryService queryService = QueryService();
+const double markerSize = 50;
+const double selectedMarkerSize = markerSize*1.5;
 
 
 class MainMap extends StatefulWidget {
@@ -35,6 +39,9 @@ class MainMap extends StatefulWidget {
 class _MainMapState extends State<MainMap> {
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
+  List<Marker> markers = [];
+  Marker? selectedMarker;
+  Map<Marker, MarkerInfo> markerInfoMap = {};
 
   void showRoutingResults() {
     // TODO Send off form info as params
@@ -56,9 +63,62 @@ class _MainMapState extends State<MainMap> {
   }
 
   void showSearchPage() {
+    if (selectedMarker != null) {
+      MarkerInfo? markerInfo = markerInfoMap[selectedMarker];
+      if (markerInfo != null) {
+        markerInfo.selected = false;
+
+        Marker newMarker = Marker(
+          point: selectedMarker!.point,
+          height: markerSize,
+          width: markerSize,
+          builder: (ctx) => const Icon(
+            Icons.location_pin,
+            size: markerSize,
+            color: Colors.blue,
+          ),
+        );
+        markerInfoMap[newMarker] = markerInfo;
+        markerInfoMap.remove(selectedMarker);
+
+        markers.remove(selectedMarker);
+        markers.add(newMarker);
+      }
+
+      selectedMarker = null;
+    }
+
     currentPage = SearchPage();
     backButtonEnabled = false;
     setState(() {});
+  }
+
+  List<Marker> getMarkers() {
+    Marker marker1 = Marker(
+      point: LatLng(51.5013562, -0.1249302),
+      width: markerSize,
+      height: markerSize,
+      builder: (ctx) => const Icon(
+        Icons.location_pin,
+        size: markerSize,
+        color: Colors.blue,
+      ),
+    );
+    markerInfoMap[marker1] = MarkerInfo(id: 1, type: AttractionType.node);
+
+    Marker marker2 = Marker(
+      point: LatLng(51.5032704, -0.1196257),
+      width: markerSize,
+      height: markerSize,
+      builder: (context) => const Icon(
+        Icons.location_pin,
+        size: markerSize,
+        color: Colors.blue,
+      ),
+    );
+    markerInfoMap[marker2] = MarkerInfo(id: 2, type: AttractionType.way);
+
+    return [marker1, marker2];
   }
 
   Widget _panel(ScrollController sc) {
@@ -95,6 +155,9 @@ class _MainMapState extends State<MainMap> {
       topLeft: Radius.circular(24.0),
       topRight: Radius.circular(24.0),
     );
+    setState(() {
+      markers = getMarkers();
+    });
 
     return BackdropScaffold(
       appBar: BackdropAppBar(
@@ -137,31 +200,33 @@ class _MainMapState extends State<MainMap> {
                 fitBoundsOptions: const FitBoundsOptions(
                   padding: EdgeInsets.all(50),
                 ),
-                markers: [
-                  Marker(
-                    point: LatLng(51.5013562, -0.1249302),
-                    width: 50,
-                    height: 50,
-                    builder: (ctx) => GestureDetector(
-                      onTap: () => showPlaceDetailInfo(5, AttractionType.node),
-                      child:  const Icon(
+                markers: markers,
+                onMarkerTap: (marker) {
+                  MarkerInfo? markerInfo = markerInfoMap[marker];
+                  if (markerInfo != null && selectedMarker == null) {
+                    markerInfo.selected = true;
+
+                    Marker newMarker = Marker(
+                      point: marker.point,
+                      height: selectedMarkerSize,
+                      width: selectedMarkerSize,
+                      builder: (ctx) => const Icon(
                         Icons.location_pin,
-                        size: 40,
-                        color: Colors.blue,
+                        size: selectedMarkerSize,
+                        color: Colors.red,
                       ),
-                    ),
-                  ),
-                  Marker(
-                    point: LatLng(51.5032704, -0.1196257),
-                    width: 50,
-                    height: 50,
-                    builder: (context) => const Icon(
-                      Icons.location_pin,
-                      size: 40,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
+                    );
+                    selectedMarker = newMarker;
+
+                    markerInfoMap[newMarker] = markerInfo;
+                    markerInfoMap.remove(marker);
+
+                    markers.remove(marker);
+                    markers.add(newMarker);
+
+                    showPlaceDetailInfo(markerInfo.id, markerInfo.type);
+                  }
+                },
                 polygonOptions: const PolygonOptions(
                     borderColor: Colors.blueAccent,
                     color: Colors.black12,
