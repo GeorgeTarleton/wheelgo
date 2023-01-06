@@ -133,6 +133,15 @@ class _MainMapState extends State<MainMap> {
     });
   }
 
+  Future<bool> _onWillPop() {
+    if (currentPage is! SearchPage) {
+      showSearchPage();
+      return Future.value(false);
+    }
+
+    return Future.value(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     BorderRadiusGeometry radius = const BorderRadius.only(
@@ -140,104 +149,107 @@ class _MainMapState extends State<MainMap> {
       topRight: Radius.circular(24.0),
     );
 
-    return BackdropScaffold(
-      appBar: BackdropAppBar(
-        title: const Text("Wheelgo", style: TextStyle(color: Colors.white)),
-        backgroundColor: Theme.of(context).primaryColor,
-        actions: const <Widget>[
-          BackdropToggleButton(
-            icon: AnimatedIcons.list_view,
-          )
-        ],
-      ),
-      backLayer: RoutingPage(),
-      frontLayer: SlidingUpPanel(
-        panelBuilder: (ScrollController sc) => _panel(sc),
-        borderRadius: radius,
-        collapsed: null,
-
-        body: FlutterMap(
-          options: MapOptions(
-            center: LatLng(51.509364, -0.128928),
-            zoom: 12,
-            maxZoom: 18.0,
-            interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-          ),
-          nonRotatedChildren: [
-            AttributionWidget.defaultWidget(
-              source: 'OpenStreetMap contributors',
-              onSourceTapped: null,
-            ),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: BackdropScaffold(
+        appBar: BackdropAppBar(
+          title: const Text("Wheelgo", style: TextStyle(color: Colors.white)),
+          backgroundColor: Theme.of(context).primaryColor,
+          actions: const <Widget>[
+            BackdropToggleButton(
+              icon: AnimatedIcons.list_view,
+            )
           ],
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.app',
-            ),
-            CurrentLocationLayer(),
-            MarkerClusterLayerWidget(
-              options: MarkerClusterLayerOptions(
-                maxClusterRadius: 120,
-                size: const Size(40, 40),
-                fitBoundsOptions: const FitBoundsOptions(
-                  padding: EdgeInsets.all(50),
-                ),
-                markers: markers,
-                onMarkerTap: (marker) {
-                  MarkerInfo? markerInfo = queryService.markerInfoMap[marker];
-                  if (markerInfo != null && selectedMarker == null) {
-                    markerInfo.selected = true;
+        ),
+        backLayer: RoutingPage(),
+        frontLayer: SlidingUpPanel(
+          panelBuilder: (ScrollController sc) => _panel(sc),
+          borderRadius: radius,
+          collapsed: null,
 
-                    Marker newMarker = Marker(
-                      point: marker.point,
-                      height: selectedMarkerSize,
-                      width: selectedMarkerSize,
-                      builder: (ctx) => const Icon(
-                        Icons.location_pin,
-                        size: selectedMarkerSize,
-                        color: Colors.red,
-                      ),
+          body: FlutterMap(
+            options: MapOptions(
+              center: LatLng(51.509364, -0.128928),
+              zoom: 12,
+              maxZoom: 18.0,
+              interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+            ),
+            nonRotatedChildren: [
+              AttributionWidget.defaultWidget(
+                source: 'OpenStreetMap contributors',
+                onSourceTapped: null,
+              ),
+            ],
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
+              ),
+              CurrentLocationLayer(),
+              MarkerClusterLayerWidget(
+                options: MarkerClusterLayerOptions(
+                  maxClusterRadius: 120,
+                  size: const Size(40, 40),
+                  fitBoundsOptions: const FitBoundsOptions(
+                    padding: EdgeInsets.all(50),
+                  ),
+                  markers: markers,
+                  onMarkerTap: (marker) {
+                    MarkerInfo? markerInfo = queryService.markerInfoMap[marker];
+                    if (markerInfo != null && selectedMarker == null) {
+                      markerInfo.selected = true;
+
+                      Marker newMarker = Marker(
+                        point: marker.point,
+                        height: selectedMarkerSize,
+                        width: selectedMarkerSize,
+                        builder: (ctx) => const Icon(
+                          Icons.location_pin,
+                          size: selectedMarkerSize,
+                          color: Colors.red,
+                        ),
+                      );
+                      selectedMarker = newMarker;
+
+                      queryService.markerInfoMap[newMarker] = markerInfo;
+                      queryService.markerInfoMap.remove(marker);
+
+                      setState(() {
+                        markers.remove(marker);
+                        markers.add(newMarker);
+                        markers = markers.toList();
+                      });
+
+                      showPlaceDetailInfo(markerInfo.id, markerInfo.type);
+                    }
+                  },
+                  polygonOptions: const PolygonOptions(
+                      borderColor: Colors.blueAccent,
+                      color: Colors.black12,
+                      borderStrokeWidth: 3),
+                  builder: (context, markers) {
+                    return FloatingActionButton(
+                      onPressed: null,
+                      child: Text(markers.length.toString()),
                     );
-                    selectedMarker = newMarker;
-
-                    queryService.markerInfoMap[newMarker] = markerInfo;
-                    queryService.markerInfoMap.remove(marker);
-
-                    setState(() {
-                      markers.remove(marker);
-                      markers.add(newMarker);
-                      markers = markers.toList();
-                    });
-
-                    showPlaceDetailInfo(markerInfo.id, markerInfo.type);
-                  }
-                },
-                polygonOptions: const PolygonOptions(
-                    borderColor: Colors.blueAccent,
-                    color: Colors.black12,
-                    borderStrokeWidth: 3),
-                builder: (context, markers) {
-                  return FloatingActionButton(
-                    onPressed: null,
-                    child: Text(markers.length.toString()),
-                  );
-                },
-              ),
-            ),
-            backButtonEnabled ? Container(
-              margin: EdgeInsets.all(10),
-              child: ElevatedButton(
-                onPressed: () => showSearchPage(),
-                child: Icon(Icons.arrow_back_outlined, size: 40),
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(10),
+                  },
                 ),
               ),
-            ) : Container(),
-            // ElevatedButton(onPressed: showRoutingResults,
-            //   child: Icon(Icons.arrow_circle_right))
-          ],
+              backButtonEnabled ? Container(
+                margin: EdgeInsets.all(10),
+                child: ElevatedButton(
+                  onPressed: () => showSearchPage(),
+                  child: Icon(Icons.arrow_back_outlined, size: 40),
+                  style: ElevatedButton.styleFrom(
+                    shape: CircleBorder(),
+                    padding: EdgeInsets.all(10),
+                  ),
+                ),
+              ) : Container(),
+              // ElevatedButton(onPressed: showRoutingResults,
+              //   child: Icon(Icons.arrow_circle_right))
+            ],
+          ),
         ),
       ),
     );
