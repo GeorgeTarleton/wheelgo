@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:backdrop/backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -97,7 +98,6 @@ class _MainMapState extends State<MainMap> {
   }
 
 
-
   Widget _panel(ScrollController sc) {
     return ListView(
       controller: sc,
@@ -169,11 +169,12 @@ class _MainMapState extends State<MainMap> {
               onSourceTapped: null,
             ),
           ],
-          children: <Widget>[
+          children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               userAgentPackageName: 'com.example.app',
             ),
+            CurrentLocationLayer(),
             MarkerClusterLayerWidget(
               options: MarkerClusterLayerOptions(
                 maxClusterRadius: 120,
@@ -234,7 +235,7 @@ class _MainMapState extends State<MainMap> {
                 ),
               ),
             ) : Container(),
-            // ElevatedButton(onPressed: removeMarker,
+            // ElevatedButton(onPressed: showRoutingResults,
             //   child: Icon(Icons.arrow_circle_right))
           ],
         ),
