@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 
+import '../dtos/OSMNode.dart';
 import '../enums/WheelchairRating.dart';
 import '../parameters/Elevation.dart';
 import '../parameters/MarkerInfo.dart';
@@ -90,6 +95,40 @@ class QueryService {
     markerInfoMap[marker2] = MarkerInfo(id: 2, type: AttractionType.way);
 
     return [marker1, marker2];
+  }
+
+  Future<List<Marker>> queryMarkers() async {
+    List<OSMNode> nodes = await queryNodes();
+    List<Marker> nodeMakers = nodes.map((node) {
+      Marker nodeMarker = Marker(
+        point: LatLng(node.lat, node.lon),
+        width: markerSize,
+        height: markerSize,
+        builder: (context) => const Icon(
+          Icons.location_pin,
+          size: markerSize,
+          color: Colors.blue,
+        ),
+      );
+      markerInfoMap[nodeMarker] = MarkerInfo(id: node.id, type: AttractionType.values.firstWhere((e) => e.toString() == "AttractionType.${node.type}"));
+
+      return nodeMarker;
+    }).toList();
+
+    return nodeMakers;
+  }
+
+  Future<List<OSMNode>> queryNodes() async {
+    final response = await http
+        .get(Uri.parse('https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:51.50069,-0.12039,51.50348,-0.11502];(node[%22amenity%22];-node[%22amenity%22=%22bicycle_parking%22];);out%20body;'));
+
+    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      OverpassResponse opResponse = OverpassResponse.fromJson(jsonDecode(response.body));
+      return opResponse.elements;
+    } else {
+      throw Exception('Failed to load markers');
+    }
   }
 
 }

@@ -38,6 +38,8 @@ class MainMap extends StatefulWidget {
 }
 
 class _MainMapState extends State<MainMap> {
+  final MapController mapController = MapController();
+
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
   List<Marker> markers = queryService.getMarkers();
@@ -143,6 +145,20 @@ class _MainMapState extends State<MainMap> {
   }
 
   @override
+  void initState(){
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      debugPrint("Querying...");
+      markers += await queryService.queryMarkers();
+      setState(() {
+        markers = markers.toList();
+        debugPrint(markers.toString());
+      });
+
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     BorderRadiusGeometry radius = const BorderRadius.only(
       topLeft: Radius.circular(24.0),
@@ -168,11 +184,17 @@ class _MainMapState extends State<MainMap> {
           collapsed: null,
 
           body: FlutterMap(
+            mapController: mapController,
             options: MapOptions(
               center: LatLng(51.509364, -0.128928),
               zoom: 12,
               maxZoom: 18.0,
               interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+              onMapEvent: (event) => {
+                if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
+                  debugPrint(event.toString())
+                }
+              },
             ),
             nonRotatedChildren: [
               AttributionWidget.defaultWidget(

@@ -32,6 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  http: ^0.13.5
   latlong2: any
   flutter_map: ^3.0.0
   flutter_map_marker_cluster: ^1.0.1
