@@ -8,6 +8,8 @@ import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 
 import '../dtos/OSMNode.dart';
+import '../enums/AttractionType.dart';
+import '../enums/AttractionType.dart';
 import '../enums/WheelchairRating.dart';
 import '../parameters/Elevation.dart';
 import '../parameters/MarkerInfo.dart';
@@ -98,29 +100,41 @@ class QueryService {
   }
 
   Future<List<Marker>> queryMarkers() async {
-    List<OSMNode> nodes = await queryNodes();
-    List<Marker> nodeMakers = nodes.map((node) {
-      Marker nodeMarker = Marker(
-        point: LatLng(node.lat, node.lon),
-        width: markerSize,
-        height: markerSize,
-        builder: (context) => const Icon(
-          Icons.location_pin,
-          size: markerSize,
-          color: Colors.blue,
-        ),
-      );
-      markerInfoMap[nodeMarker] = MarkerInfo(id: node.id, type: AttractionType.values.firstWhere((e) => e.toString() == "AttractionType.${node.type}"));
+    List<OSMElement> nodes = await queryNodes();
 
-      return nodeMarker;
+    List<OSMElement> nodesMarkersData = nodes.where((node) => node.tags != null).toList();
+    List<OSMElement> waysNodeData = nodes.where((node) => node.tags == null).toList();
+
+    List<Marker> nodeMakers = nodesMarkersData.map((node) {
+      if (node.type == AttractionType.node) {
+        Marker nodeMarker = Marker(
+          point: LatLng(node.lat!, node.lon!),
+          width: markerSize,
+          height: markerSize,
+          builder: (context) => const Icon(
+            Icons.location_pin,
+            size: markerSize,
+            color: Colors.blue,
+          ),
+        );
+        markerInfoMap[nodeMarker] = MarkerInfo(id: node.id, type: node.type);
+
+        return nodeMarker;
+      } else return Marker(point: LatLng(0,0), builder: (context) => const Icon(
+        Icons.location_pin,
+        size: markerSize,
+        color: Colors.blue,
+      ),);
     }).toList();
 
     return nodeMakers;
   }
 
-  Future<List<OSMNode>> queryNodes() async {
+  Future<List<OSMElement>> queryNodes() async {
+    // String query = 'https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:51.50069,-0.12039,51.50348,-0.11502];(node[%22amenity%22];-node[%22amenity%22=%22bicycle_parking%22];);out%20body;';
+    String query = "https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:51.4859, -0.1414, 51.5083, -0.1071];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];>;node[\"shop\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];>;node[\"public_transport\"~\"station|platform\"];way[\"attraction\"];>;node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"];way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"];>;node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];>;node[\"sport\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];>;);out body;";
     final response = await http
-        .get(Uri.parse('https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:51.50069,-0.12039,51.50348,-0.11502];(node[%22amenity%22];-node[%22amenity%22=%22bicycle_parking%22];);out%20body;'));
+        .get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());
     if (response.statusCode == 200) {

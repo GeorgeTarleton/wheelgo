@@ -1,32 +1,37 @@
+import 'package:wheelgo/src/enums/AttractionType.dart';
+
 import 'Tags.dart';
 
-class OSMNode {
+class OSMElement {
   final int id;
-  final String type;
-  final double lat;
-  final double lon;
-  final Tags tags;
+  final AttractionType type;
+  final double? lat;
+  final double? lon;
+  final Tags? tags;
+  final List<int>? nodeChildren;
 
-  const OSMNode({
+  const OSMElement({
     required this.id,
     required this.type,
-    required this.lat,
-    required this.lon,
+    this.lat,
+    this.lon,
     required this.tags,
+    this.nodeChildren,
   });
 
-  factory OSMNode.fromJson(Map<String, dynamic> json) {
-    return OSMNode(
+  factory OSMElement.fromJson(Map<String, dynamic> json) {
+    return OSMElement(
       id: json['id'],
-      type: json['type'],
+      type: AttractionType.values.firstWhere((e) => e.toString() == "AttractionType.${json['type']}"),
       lat: json['lat'],
       lon: json['lon'],
-      tags: Tags.fromJson(json['tags']),
+      tags: json['tags'] != null ? Tags.fromJson(json['tags']) : null,
+      nodeChildren: json['nodes'] != null ? List<int>.from(json['nodes']) : null,
     );
   }
 
   @override
   String toString() {
-    return "OSMNode{id: $id, type: $type, lat: $lat, long: $lon, tags: $tags}";
+    return "OSMElement{id: $id, type: $type, lat: $lat, long: $lon, tags: $tags, nodeChildren: $nodeChildren}";
   }
 }

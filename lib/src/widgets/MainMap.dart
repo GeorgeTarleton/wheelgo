@@ -26,7 +26,7 @@ import 'package:wheelgo/src/widgets/SearchPage.dart';
 import '../parameters/MarkerInfo.dart';
 
 QueryService queryService = QueryService();
-const double markerSize = 50;
+const double markerSize = 30;
 const double selectedMarkerSize = markerSize*1.2;
 
 
@@ -188,7 +188,7 @@ class _MainMapState extends State<MainMap> {
             options: MapOptions(
               center: LatLng(51.509364, -0.128928),
               zoom: 12,
-              maxZoom: 18.0,
+              maxZoom: 18.49999999999999, // This is the max zoom for the server
               interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               onMapEvent: (event) => {
                 if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
@@ -211,6 +211,7 @@ class _MainMapState extends State<MainMap> {
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
                   maxClusterRadius: 120,
+                  disableClusteringAtZoom: 17,
                   size: const Size(40, 40),
                   fitBoundsOptions: const FitBoundsOptions(
                     padding: EdgeInsets.all(50),
