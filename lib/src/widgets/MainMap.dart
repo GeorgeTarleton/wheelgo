@@ -192,7 +192,7 @@ class _MainMapState extends State<MainMap> {
               interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               onMapEvent: (event) => {
                 if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
-                  debugPrint(event.toString())
+                  debugPrint(mapController.zoom.toString())
                 }
               },
             ),
