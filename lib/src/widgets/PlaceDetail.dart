@@ -11,6 +11,7 @@ class PlaceDetail extends StatelessWidget {
   final String accessibleDescriptionFull = "Wheelchairs have full, unrestricted access.\nEntrance and rooms are accessible without steps.";
   final String accessibleDescriptionLimited = "Wheelchairs have partial access.\nThe entrance has a step no higher than 7cm.\nThe most important rooms are stepless.";
   final String accessibleDescriptionNone = "Wheelchairs have no unrestricted access.\nThe entrance has a high or step, or several steps.\nThe most important rooms are not accessible.";
+  final String accessibleDescriptionUnknown = "Unknown wheelchair accessibility information.";
 
   Color determineRatingColour() {
     switch (params.wheelchairRating) {
@@ -38,7 +39,7 @@ class PlaceDetail extends StatelessWidget {
       case WheelchairRating.no:
         return accessibleDescriptionNone;
       case WheelchairRating.unknown:
-        return "";
+        return accessibleDescriptionUnknown;
     }
   }
 
