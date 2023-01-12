@@ -28,6 +28,13 @@ import '../parameters/MarkerInfo.dart';
 QueryService queryService = QueryService();
 const double markerSize = 30;
 const double selectedMarkerSize = markerSize*1.2;
+const double queryZoomThreshold = 15;
+const int maxClusterRadius = 150;
+const double boxBufferScale = 1;
+LatLngBounds initBounds = LatLngBounds(
+    LatLng(51.493136, -0.127109),
+    LatLng(51.50586, -0.117402)
+);
 
 
 class MainMap extends StatefulWidget {
@@ -42,8 +49,10 @@ class _MainMapState extends State<MainMap> {
 
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
-  List<Marker> markers = queryService.getMarkers();
+  bool loadingMarkers = false;
+  List<Marker> markers = [];
   Marker? selectedMarker;
+  LatLngBounds lastBounds = initBounds;
 
 
   void showRoutingResults() {
@@ -135,6 +144,26 @@ class _MainMapState extends State<MainMap> {
     });
   }
 
+
+  void resetBounds() {
+    setState(() {
+      double heightLat = mapController.bounds!.north - mapController.bounds!.south;
+      double widthLon = mapController.bounds!.east - mapController.bounds!.west;
+
+      lastBounds = LatLngBounds(
+          LatLng(
+            mapController.bounds!.southWest!.latitude - boxBufferScale * heightLat,
+            mapController.bounds!.southWest!.longitude - boxBufferScale * widthLon,
+          ),
+          LatLng(
+            mapController.bounds!.northEast!.latitude + boxBufferScale * heightLat,
+            mapController.bounds!.northEast!.longitude + boxBufferScale * widthLon,
+          )
+      );
+    });
+  }
+
+
   Future<bool> _onWillPop() {
     if (currentPage is! SearchPage) {
       showSearchPage();
@@ -144,17 +173,29 @@ class _MainMapState extends State<MainMap> {
     return Future.value(true);
   }
 
-  @override
-  void initState(){
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      debugPrint("Querying...");
-      markers += await queryService.queryMarkers();
-      setState(() {
-        markers = markers.toList();
-        debugPrint(markers.toString());
-      });
+  void queryNewMarkers() {
+    setState(() => loadingMarkers = true);
+    debugPrint("Setting loading to $loadingMarkers");
+    resetBounds();
+    setMarkers(lastBounds.southWest!, lastBounds.northEast!);
+  }
 
+  Future<void> setMarkers(LatLng sw, LatLng ne) async {
+    markers = await queryService.queryMarkers(sw, ne);
+    setState(() {
+      markers = markers.toList();
+      debugPrint(markers.toString());
+      loadingMarkers = false;
+      debugPrint("Setting makers to false");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      debugPrint("Initial querying...");
+      queryNewMarkers();
     });
   }
 
@@ -182,17 +223,18 @@ class _MainMapState extends State<MainMap> {
           panelBuilder: (ScrollController sc) => _panel(sc),
           borderRadius: radius,
           collapsed: null,
-
           body: FlutterMap(
             mapController: mapController,
             options: MapOptions(
-              center: LatLng(51.509364, -0.128928),
-              zoom: 12,
+              bounds: initBounds,
               maxZoom: 18.49999999999999, // This is the max zoom for the server
               interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-              onMapEvent: (event) => {
-                if (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd) {
-                  debugPrint(mapController.zoom.toString())
+              onMapEvent: (event) {
+                if (mapController.zoom > queryZoomThreshold &&
+                    !lastBounds.containsBounds(mapController.bounds!) &&
+                    (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd || event is MapEventScrollWheelZoom)) {
+                  debugPrint(event.toString());
+                  queryNewMarkers();
                 }
               },
             ),
@@ -210,7 +252,7 @@ class _MainMapState extends State<MainMap> {
               CurrentLocationLayer(),
               MarkerClusterLayerWidget(
                 options: MarkerClusterLayerOptions(
-                  maxClusterRadius: 120,
+                  maxClusterRadius: maxClusterRadius,
                   disableClusteringAtZoom: 17,
                   size: const Size(40, 40),
                   fitBoundsOptions: const FitBoundsOptions(
@@ -269,8 +311,25 @@ class _MainMapState extends State<MainMap> {
                   ),
                 ),
               ) : Container(),
-              // ElevatedButton(onPressed: showRoutingResults,
-              //   child: Icon(Icons.arrow_circle_right))
+              loadingMarkers ? Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  margin: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle
+                  ),
+                  child: CircularProgressIndicator(),
+                ),
+              ) : Container(),
+              // Align(
+              //   alignment: Alignment.topRight,
+              //   child: ElevatedButton(onPressed: showRoutingResults,
+              //       child: Icon(Icons.arrow_circle_right)),
+              // )
             ],
           ),
         ),
