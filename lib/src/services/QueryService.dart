@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
+import 'package:wheelgo/src/interfaces/Address.dart';
 
 import '../dtos/OSMNode.dart';
 import '../enums/AttractionType.dart';
@@ -64,7 +66,7 @@ class QueryService {
       name: "Place Name $id",
       category: "Category",
       wheelchairRating: WheelchairRating.yes,
-      address: "Address",
+      address: Address(houseNumber: "5", street: "Street", postcode: "Postcode"),
       website: "Website",
     );
   }
@@ -124,13 +126,25 @@ class QueryService {
 
   Future<List<OSMElement>> queryNodes(LatLng southWest, LatLng northEast) async {
     String query = "https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:${southWest.latitude}, ${southWest.longitude}, ${northEast.latitude}, ${northEast.longitude}];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];node[\"shop\"][\"wheelchair\"];node[\"public_transport\"~\"station|platform\"];node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"];node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];node[\"sport\"][\"wheelchair\"];);out body;(way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];way[\"attraction\"];way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"];way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];);out center;";
-    final response = await http
-        .get(Uri.parse(query));
+    final response = await http.get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());
     if (response.statusCode == 200) {
       OverpassResponse opResponse = OverpassResponse.fromJson(jsonDecode(response.body));
       return opResponse.elements;
+    } else {
+      throw Exception('Failed to load markers');
+    }
+  }
+
+  Future<PlaceDetailParams> queryPlace(int id, AttractionType type) async {
+    String query = "https://z.overpass-api.de/api/interpreter?data=[out:json];${describeEnum(type)}($id);out body;";
+    final response = await http.get(Uri.parse(query));
+
+    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      PlaceDetailParams params = PlaceDetailParams.fromJson(jsonDecode(response.body)['elements'][0]['tags']);
+      return params;
     } else {
       throw Exception('Failed to load markers');
     }

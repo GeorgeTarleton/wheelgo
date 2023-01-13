@@ -193,9 +193,10 @@ class _MainMapState extends State<MainMap> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       debugPrint("Initial querying...");
       queryNewMarkers();
+      debugPrint((await queryService.queryPlace(267432002, AttractionType.node)).toString());
     });
   }
 
@@ -337,3 +338,4 @@ class _MainMapState extends State<MainMap> {
     );
   }
 }
+

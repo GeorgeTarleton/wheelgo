@@ -40,6 +40,7 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   backdrop: ^0.8.1
   intl: ^0.18.0
+  recase: ^4.1.0
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -110,7 +110,7 @@ class PlaceDetail extends StatelessWidget {
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: Column(
               children: [
-                Text(params.address, style: TextStyle(fontSize: 20)),
+                Text(params.address.toString(), style: TextStyle(fontSize: 20)),
                 Text(params.website ?? "", style: TextStyle(fontSize: 20))
               ],
             ),
