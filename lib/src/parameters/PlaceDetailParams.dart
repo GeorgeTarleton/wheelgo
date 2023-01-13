@@ -31,15 +31,26 @@ class PlaceDetailParams {
     } else if (json['public_transport'] != null) {
       category = new ReCase(json['public_transport']).titleCase;
     } else if (json['tourism'] != null) {
-      category = new ReCase(json['tourism']).titleCase;
+      if (json['tourism'] == "yes") {
+        category = "Attraction";
+      } else {
+        category = new ReCase(json['tourism']).titleCase;
+      }
     } else if (json['leisure'] != null) {
       category = new ReCase(json['leisure']).titleCase;
     } else if (json['sport'] != null) {
       category = new ReCase(json['sport']).titleCase;
     }
 
+    String name = "";
+    if (json['name'] != null) {
+      name = json['name'];
+    } else if (json['amenity'] == "toilets") {
+      name = "Public Toilets";
+    }
+
     return PlaceDetailParams(
-      name: json['name'],
+      name: name,
       category: category,
       wheelchairRating: json['wheelchair'] != null ? PlaceDetailParams.getWheelchairRating(json['wheelchair']) : WheelchairRating.unknown,
       wheelchairDescription: json['wheelchair:description'],

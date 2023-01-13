@@ -9,6 +9,10 @@ class Address {
     this.postcode,
   });
 
+  bool isEmpty() {
+    return houseNumber == null && street == null && postcode == null;
+  }
+
   @override
   String toString() {
     String address = "";

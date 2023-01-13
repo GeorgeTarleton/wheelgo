@@ -41,6 +41,8 @@ dependencies:
   backdrop: ^0.8.1
   intl: ^0.18.0
   recase: ^4.1.0
+  flutter_linkify: ^5.0.2
+  url_launcher: ^6.1.7
 
 
   # The following adds the Cupertino Icons font to your application.

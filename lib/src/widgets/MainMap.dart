@@ -50,6 +50,7 @@ class _MainMapState extends State<MainMap> {
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
   bool loadingMarkers = false;
+  bool isLoadingSlideable = false;
   List<Marker> markers = [];
   Marker? selectedMarker;
   LatLngBounds lastBounds = initBounds;
@@ -64,13 +65,16 @@ class _MainMapState extends State<MainMap> {
     setState(() {});
   }
 
-  void showPlaceDetailInfo(int id, AttractionType type) {
+  Future<void> showPlaceDetailInfo(int id, AttractionType type) async {
     // TODO Add identifying info as params
     // TODO Do the querying/passing etc. (has example data for now)
-    PlaceDetailParams params = queryService.getPlaceDetail(id, type);
+    // PlaceDetailParams params = queryService.getPlaceDetail(id, type);
+    setState(() => isLoadingSlideable = true);
+    PlaceDetailParams params = await queryService.queryPlace(id, type);
 
     currentPage = PlaceDetail(params: params);
     backButtonEnabled = true;
+    isLoadingSlideable = false;
     setState(() {});
   }
 
@@ -132,7 +136,15 @@ class _MainMapState extends State<MainMap> {
         const SizedBox(
           height: 6.0,
         ),
-        currentPage,
+         isLoadingSlideable ? Center(
+             child: Container(
+               width: 50,
+               height: 50,
+               margin: EdgeInsets.all(10),
+               padding: EdgeInsets.all(10),
+               child: CircularProgressIndicator(),
+             )
+         ) : currentPage,
       ],
     );
   }
@@ -166,6 +178,7 @@ class _MainMapState extends State<MainMap> {
 
   Future<bool> _onWillPop() {
     if (currentPage is! SearchPage) {
+      debugPrint("I'm popping");
       showSearchPage();
       return Future.value(false);
     }
@@ -196,7 +209,6 @@ class _MainMapState extends State<MainMap> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       debugPrint("Initial querying...");
       queryNewMarkers();
-      debugPrint((await queryService.queryPlace(267432002, AttractionType.node)).toString());
     });
   }
 

@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PlaceDetail extends StatelessWidget {
   const PlaceDetail({super.key, required this.params});
@@ -111,8 +114,15 @@ class PlaceDetail extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(params.address.toString(), style: TextStyle(fontSize: 20)),
-                Text(params.website ?? "", style: TextStyle(fontSize: 20))
+                params.address.isEmpty() ? Text(params.address.toString(), style: TextStyle(fontSize: 20)) : Container(),
+                params.website != null ? Linkify(
+                  onOpen: (link)  {
+                    launchUrl(Uri.parse(link.url));
+                  },
+                  text: params.website!,
+                  style: TextStyle(fontSize: 20),
+                  linkStyle: TextStyle(decoration: TextDecoration.underline, fontSize: 20),
+                ) : Container(),
               ],
             ),
           )
