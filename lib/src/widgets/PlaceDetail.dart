@@ -109,6 +109,7 @@ class PlaceDetail extends StatelessWidget {
           Container(
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(params.address.toString(), style: TextStyle(fontSize: 20)),
                 Text(params.website ?? "", style: TextStyle(fontSize: 20))
