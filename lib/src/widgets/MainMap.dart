@@ -178,7 +178,6 @@ class _MainMapState extends State<MainMap> {
 
   Future<bool> _onWillPop() {
     if (currentPage is! SearchPage) {
-      debugPrint("I'm popping");
       showSearchPage();
       return Future.value(false);
     }
@@ -197,7 +196,6 @@ class _MainMapState extends State<MainMap> {
     markers = await queryService.queryMarkers(sw, ne);
     setState(() {
       markers = markers.toList();
-      debugPrint(markers.toString());
       loadingMarkers = false;
       debugPrint("Setting makers to false");
     });
