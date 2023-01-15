@@ -105,7 +105,23 @@ class QueryService {
     debugPrint("Querying markers...");
     List<OSMElement> nodes = await queryNodes(sw, ne);
 
-    List<Marker> nodeMakers = nodes.map((node) {
+    // TODO Maybe find a more efficient way to do it
+    Set<OSMElement> uniqueNodes = {};
+    for (OSMElement node in nodes) {
+      List<OSMElement> dupNodes = uniqueNodes.where((currentNode) =>
+        // This is the smallest value I consider equal
+       (currentNode.lat - node.lat).abs() < 0.0000004
+            && (currentNode.lon - node.lon).abs() < 0.0000004).toList();
+
+      if (dupNodes.isEmpty) {
+        uniqueNodes.add(node);
+      } else if (node.type == AttractionType.node) {
+        uniqueNodes.removeAll(dupNodes);
+        uniqueNodes.add(node);
+      }
+    }
+
+    List<Marker> nodeMakers = uniqueNodes.map((node) {
         Marker nodeMarker = Marker(
           point: LatLng(node.lat, node.lon),
           width: markerSize,
@@ -125,7 +141,7 @@ class QueryService {
   }
 
   Future<List<OSMElement>> queryNodes(LatLng southWest, LatLng northEast) async {
-    String query = "https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:${southWest.latitude}, ${southWest.longitude}, ${northEast.latitude}, ${northEast.longitude}];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];node[\"shop\"][\"wheelchair\"];node[\"public_transport\"~\"station|platform\"];(node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"];-node[\"information\"~\"map\"];);node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];node[\"sport\"][\"wheelchair\"];);out body;(way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];way[\"attraction\"];(way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|information|museum|theme_park|viewpoint|zoo|yes\"]; - way[\"information\"~\"map\"];);way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];);out center;";
+    String query = "https://z.overpass-api.de/api/interpreter?data=[out:json][bbox:${southWest.latitude}, ${southWest.longitude}, ${northEast.latitude}, ${northEast.longitude}];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];node[\"shop\"][\"wheelchair\"];node[\"public_transport\"~\"station|platform\"];node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"];node[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];node[\"sport\"][\"wheelchair\"];);out body;(way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];way[\"attraction\"];way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"];way[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];);out center;";
     final response = await http.get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());

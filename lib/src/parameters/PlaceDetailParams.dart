@@ -23,13 +23,20 @@ class PlaceDetailParams {
   final String? website;
 
   factory PlaceDetailParams.fromJson(Map<String, dynamic> json) {
+    WheelchairRating rating = json['wheelchair'] != null ? PlaceDetailParams.getWheelchairRating(json['wheelchair']) : WheelchairRating.unknown;
+
     String category = "";
     if (json['shop'] != null) {
       category = "Shop";
     } else if (json['amenity'] != null) {
       category = new ReCase(json['amenity']).titleCase;
     } else if (json['public_transport'] != null) {
-      category = new ReCase(json['public_transport']).titleCase;
+      if (json['highway'] != null && json['highway'] == "bus_stop") {
+        category = "Bus Stop";
+        rating = WheelchairRating.yes;
+      } else {
+        category = new ReCase(json['public_transport']).titleCase;
+      }
     } else if (json['tourism'] != null) {
       if (json['tourism'] == "yes") {
         category = "Attraction";
@@ -52,7 +59,7 @@ class PlaceDetailParams {
     return PlaceDetailParams(
       name: name,
       category: category,
-      wheelchairRating: json['wheelchair'] != null ? PlaceDetailParams.getWheelchairRating(json['wheelchair']) : WheelchairRating.unknown,
+      wheelchairRating: rating,
       wheelchairDescription: json['wheelchair:description'],
       address: Address(houseNumber: json['addr:housenumber'], street: json['addr:street'], postcode: json['addr:postcode']),
       website: json['website'],
