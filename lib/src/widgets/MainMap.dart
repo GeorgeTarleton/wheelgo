@@ -197,7 +197,6 @@ class _MainMapState extends State<MainMap> {
     setState(() {
       markers = markers.toList();
       loadingMarkers = false;
-      debugPrint("Setting makers to false");
     });
   }
 
