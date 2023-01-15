@@ -34,6 +34,8 @@ class PlaceDetailParams {
       if (json['highway'] != null && json['highway'] == "bus_stop") {
         category = "Bus Stop";
         rating = WheelchairRating.yes;
+      } else if (json['network'] != null && json['network'] == "London Underground") {
+        category = "Tube Station";
       } else {
         category = new ReCase(json['public_transport']).titleCase;
       }
