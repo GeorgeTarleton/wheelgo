@@ -30,7 +30,23 @@ class SearchBar extends StatelessWidget {
         prefixIcon: Container(
           padding: EdgeInsets.all(15),
           child: Icon(Icons.search),
-        )
+        ),
+        // suffixIcon: Container(
+        //   height: 30,
+        //   width: 30,
+        //   child: ElevatedButton(
+        //     onPressed: () {  },
+        //     child: Icon(Icons.arrow_forward, size: 30),
+        //   ),
+        // ),
+        suffixIcon: Container(
+          width: 40, height: 40,
+          margin: EdgeInsets.all(5),
+          child: FloatingActionButton(
+            onPressed: () {  },
+            child: Icon(Icons.arrow_forward, size: 30),
+          ),
+        ),
       ),
     );
   }
