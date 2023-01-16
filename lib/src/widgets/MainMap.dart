@@ -78,34 +78,38 @@ class _MainMapState extends State<MainMap> {
     setState(() {});
   }
 
+  void removeSelectedMarker(MarkerInfo markerInfo) {
+    Marker newMarker = Marker(
+      point: selectedMarker!.point,
+      height: markerSize,
+      width: markerSize,
+      builder: (ctx) => const Icon(
+        Icons.location_pin,
+        size: markerSize,
+        color: Colors.blue,
+      ),
+    );
+    queryService.markerInfoMap[newMarker] = markerInfo;
+    queryService.markerInfoMap.remove(selectedMarker);
+
+    setState(() {
+      markers.remove(selectedMarker);
+      markers.add(newMarker);
+      markers = markers.toList();
+    });
+  }
+
   void showSearchPage() {
     if (selectedMarker != null) {
       MarkerInfo? markerInfo = queryService.markerInfoMap[selectedMarker];
       if (markerInfo != null) {
         markerInfo.selected = false;
-
-        Marker newMarker = Marker(
-          point: selectedMarker!.point,
-          height: markerSize,
-          width: markerSize,
-          builder: (ctx) => const Icon(
-            Icons.location_pin,
-            size: markerSize,
-            color: Colors.blue,
-          ),
-        );
-        queryService.markerInfoMap[newMarker] = markerInfo;
-        queryService.markerInfoMap.remove(selectedMarker);
-
-        setState(() {
-          markers.remove(selectedMarker);
-          markers.add(newMarker);
-          markers = markers.toList();
-        });
+        removeSelectedMarker(markerInfo);
       }
 
       selectedMarker = null;
     }
+
 
     currentPage = SearchPage();
     backButtonEnabled = false;
@@ -156,6 +160,62 @@ class _MainMapState extends State<MainMap> {
     });
   }
 
+  void selectMarker(Marker marker) {
+    MarkerInfo? markerInfo = queryService.markerInfoMap[marker];
+    if (markerInfo != null)  {
+      if (selectedMarker == null) {
+        markerInfo.selected = true;
+
+        Marker newMarker = Marker(
+          point: marker.point,
+          height: selectedMarkerSize,
+          width: selectedMarkerSize,
+          builder: (ctx) => const Icon(
+            Icons.location_pin,
+            size: selectedMarkerSize,
+            color: Colors.red,
+          ),
+        );
+        selectedMarker = newMarker;
+
+        queryService.markerInfoMap[newMarker] = markerInfo;
+        queryService.markerInfoMap.remove(marker);
+
+        setState(() {
+          markers.remove(marker);
+          markers.add(newMarker);
+          markers = markers.toList();
+        });
+
+        showPlaceDetailInfo(markerInfo.id, markerInfo.type);
+      } else {
+        removeSelectedMarker(markerInfo);
+
+        Marker newMarker = Marker(
+          point: marker.point,
+          height: selectedMarkerSize,
+          width: selectedMarkerSize,
+          builder: (ctx) => const Icon(
+            Icons.location_pin,
+            size: selectedMarkerSize,
+            color: Colors.red,
+          ),
+        );
+        selectedMarker = newMarker;
+
+        queryService.markerInfoMap[newMarker] = markerInfo;
+        queryService.markerInfoMap.remove(marker);
+
+        setState(() {
+          markers.remove(marker);
+          markers.add(newMarker);
+          markers = markers.toList();
+        });
+
+        showPlaceDetailInfo(markerInfo.id, markerInfo.type);
+      }
+    }
+  }
 
   void resetBounds() {
     setState(() {
@@ -243,7 +303,6 @@ class _MainMapState extends State<MainMap> {
                 if (mapController.zoom > queryZoomThreshold &&
                     !lastBounds.containsBounds(mapController.bounds!) &&
                     (event is MapEventMoveEnd || event is MapEventFlingAnimationEnd || event is MapEventScrollWheelZoom)) {
-                  debugPrint(event.toString());
                   queryNewMarkers();
                 }
               },
@@ -269,35 +328,7 @@ class _MainMapState extends State<MainMap> {
                     padding: EdgeInsets.all(50),
                   ),
                   markers: markers,
-                  onMarkerTap: (marker) {
-                    MarkerInfo? markerInfo = queryService.markerInfoMap[marker];
-                    if (markerInfo != null && selectedMarker == null) {
-                      markerInfo.selected = true;
-
-                      Marker newMarker = Marker(
-                        point: marker.point,
-                        height: selectedMarkerSize,
-                        width: selectedMarkerSize,
-                        builder: (ctx) => const Icon(
-                          Icons.location_pin,
-                          size: selectedMarkerSize,
-                          color: Colors.red,
-                        ),
-                      );
-                      selectedMarker = newMarker;
-
-                      queryService.markerInfoMap[newMarker] = markerInfo;
-                      queryService.markerInfoMap.remove(marker);
-
-                      setState(() {
-                        markers.remove(marker);
-                        markers.add(newMarker);
-                        markers = markers.toList();
-                      });
-
-                      showPlaceDetailInfo(markerInfo.id, markerInfo.type);
-                    }
-                  },
+                  onMarkerTap: (marker) => selectMarker(marker),
                   polygonOptions: const PolygonOptions(
                       borderColor: Colors.blueAccent,
                       color: Colors.black12,
