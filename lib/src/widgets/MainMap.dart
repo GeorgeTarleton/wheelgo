@@ -46,6 +46,7 @@ class MainMap extends StatefulWidget {
 
 class _MainMapState extends State<MainMap> {
   final MapController mapController = MapController();
+  final PanelController panelController = PanelController();
 
   Widget currentPage = SearchPage();
   bool backButtonEnabled = false;
@@ -97,6 +98,7 @@ class _MainMapState extends State<MainMap> {
       markers.add(newMarker);
       markers = markers.toList();
     });
+    panelController.close();
   }
 
   void showSearchPage() {
@@ -290,6 +292,7 @@ class _MainMapState extends State<MainMap> {
         ),
         backLayer: RoutingPage(),
         frontLayer: SlidingUpPanel(
+          controller: panelController,
           panelBuilder: (ScrollController sc) => _panel(sc),
           borderRadius: radius,
           collapsed: null,
