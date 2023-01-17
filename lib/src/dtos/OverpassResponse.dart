@@ -1,4 +1,4 @@
-import 'OSMNode.dart';
+import 'OSMElement.dart';
 
 class OverpassResponse {
   final List<OSMElement> elements;

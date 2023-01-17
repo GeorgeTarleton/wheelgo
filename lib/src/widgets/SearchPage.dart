@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:wheelgo/src/dtos/NominatimElement.dart';
+import 'package:wheelgo/src/widgets/MainMap.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../parameters/DestinationCardParams.dart';
 import 'SearchBar.dart';
@@ -33,13 +37,31 @@ class _SearchPageState extends State<SearchPage> {
     const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
   ];
 
+  Future<void> findSearchResults(String term) async {
+    final Distance distance = Distance();
+
+    List<NominatimElement> elements = await queryService.searchForPlace(term);
+    Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+
+    LatLng currentLocation = LatLng(currentPosition.latitude, currentPosition.longitude);
+    List<DestinationCardParams> params = elements.map((e) {
+      final double km = distance.as(LengthUnit.Kilometer, currentLocation, e.latlng);
+
+      return DestinationCardParams(name: e.basicName, address: e.address.toString(), distance: km.toStringAsFixed(1));
+    }).toList();
+
+    setState(() {
+      results = params;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
-          child: SearchBar(prompt: "Search here"),
+          child: SearchBar(prompt: "Search here", onSubmit: findSearchResults),
         ),
         ListView.builder(
             shrinkWrap: true,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SearchBar extends StatelessWidget {
-  const SearchBar({super.key, required this.prompt,
+  const SearchBar({super.key, required this.prompt, this.onSubmit,
     this.fillColour = const Color.fromRGBO(222, 222, 222, 100),
     this.textColour = Colors.grey
   });
@@ -9,6 +9,7 @@ class SearchBar extends StatelessWidget {
   final String prompt;
   final Color fillColour;
   final Color textColour;
+  final Function(String)? onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +41,7 @@ class SearchBar extends StatelessWidget {
           ),
         ),
       ),
+      onSubmitted: onSubmit,
     );
   }
 }

@@ -268,6 +268,7 @@ class _MainMapState extends State<MainMap> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       debugPrint("Initial querying...");
       queryNewMarkers();
+      debugPrint((await queryService.searchForPlace("Big ben")).toString());
     });
   }
 

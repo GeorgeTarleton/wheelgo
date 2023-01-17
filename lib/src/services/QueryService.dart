@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/interfaces/Address.dart';
 
-import '../dtos/OSMNode.dart';
+import '../dtos/OSMElement.dart';
 import '../enums/AttractionType.dart';
 import '../enums/AttractionType.dart';
 import '../enums/WheelchairRating.dart';
@@ -60,6 +61,7 @@ const exampleRRParams = RoutingResultsPageParams(
 
 class QueryService {
   Map<Marker, MarkerInfo> markerInfoMap = {};
+  final searchLimit = 10;
 
   PlaceDetailParams getPlaceDetail(int id, AttractionType type) {
     return PlaceDetailParams(
@@ -163,6 +165,19 @@ class QueryService {
       return params;
     } else {
       throw Exception('Failed to load markers');
+    }
+  }
+
+  Future<List<NominatimElement>> searchForPlace(String name) async {
+    String query = "https://nominatim.openstreetmap.org/search?q=$name,city=London&namedetails=1&addressdetails=1&limit=$searchLimit&format=json";
+    final response = await http.get(Uri.parse(query));
+
+    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      List<dynamic> results = jsonDecode(response.body);
+      return results.map((r) => NominatimElement.fromJson(r)).toList();
+    } else {
+      throw Exception('Failed to search');
     }
   }
 
