@@ -84,34 +84,37 @@ class DestinationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: const EdgeInsets.only(left: 20, right: 40, top: 8, bottom: 8),
-        child:
-        Row(
-          children: [
-            Expanded(flex: 1, child: Column(
+    return Material(
+      color: Colors.white,
+      child: InkWell(
+        onTap: () => debugPrint("Tapped"),
+        child: Container(
+            padding: const EdgeInsets.only(left: 20, right: 40, top: 8, bottom: 8),
+            child: Row(
               children: [
-                Icon(Icons.map),
-                SizedBox(
-                  height: 4.0,
-                ),
-                Text(distance + " km", textAlign: TextAlign.center),
+                Expanded(flex: 1, child: Column(
+                  children: [
+                    Icon(Icons.map),
+                    SizedBox(height: 4.0),
+                    Text(distance + " km", textAlign: TextAlign.center),
+                  ],
+                )),
+                SizedBox(width: 15),
+                Expanded(flex: 4, child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: TextStyle(fontSize: 20)),
+                    SizedBox(
+                      height: 4.0,
+                    ),
+                    Text(address),
+                    Divider(color: Colors.black)
+                  ],
+                )),
               ],
-            )),
-            SizedBox(width: 15),
-            Expanded(flex: 4, child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: TextStyle(fontSize: 20)),
-                SizedBox(
-                  height: 4.0,
-                ),
-                Text(address),
-                Divider(color: Colors.black)
-              ],
-            )),
-          ],
-        )
+            ),
+        ),
+      ),
     );
   }
 }
