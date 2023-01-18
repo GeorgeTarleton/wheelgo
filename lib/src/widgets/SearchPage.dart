@@ -102,6 +102,7 @@ class DestinationCard extends StatelessWidget {
                 Text(distance + " km")
               ],
             )),
+            SizedBox(width: 15),
             Expanded(flex: 4, child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
