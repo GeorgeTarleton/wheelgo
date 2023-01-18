@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/widgets/MainMap.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,37 +9,18 @@ import '../parameters/DestinationCardParams.dart';
 import 'SearchBar.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  const SearchPage({super.key, required this.panelController});
+  final PanelController panelController;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
-  // TODO Change this to be generated from the queries, rather than static
-  List<DestinationCardParams> results = [
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-    const DestinationCardParams(name: "Name 1", address: "Address 1", distance: "10"),
-    const DestinationCardParams(name: "Name 2", address: "Address 2", distance: "20"),
-  ];
+  List<DestinationCardParams> results = [];
 
   Future<void> findSearchResults(String term) async {
-    final Distance distance = Distance();
+    const Distance distance = Distance();
 
     List<NominatimElement> elements = await queryService.searchForPlace(term);
     Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
@@ -61,7 +43,11 @@ class _SearchPageState extends State<SearchPage> {
       children: [
         Container(
           padding: const EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
-          child: SearchBar(prompt: "Search here", onSubmit: findSearchResults),
+          child: SearchBar(
+            prompt: "Search here",
+            onSubmit: findSearchResults,
+            panelController: widget.panelController,
+          ),
         ),
         ListView.builder(
             shrinkWrap: true,

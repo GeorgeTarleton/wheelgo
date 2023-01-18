@@ -48,7 +48,13 @@ class _MainMapState extends State<MainMap> {
   final MapController mapController = MapController();
   final PanelController panelController = PanelController();
 
-  Widget currentPage = SearchPage();
+  Widget currentPage = Container(
+    width: 50,
+    height: 50,
+    margin: EdgeInsets.all(10),
+    padding: EdgeInsets.all(10),
+    child: CircularProgressIndicator(),
+  );
   bool backButtonEnabled = false;
   bool loadingMarkers = false;
   bool isLoadingSlideable = false;
@@ -113,7 +119,7 @@ class _MainMapState extends State<MainMap> {
     }
 
 
-    currentPage = SearchPage();
+    currentPage = SearchPage(panelController: panelController);
     backButtonEnabled = false;
     setState(() {});
   }
@@ -265,6 +271,9 @@ class _MainMapState extends State<MainMap> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      currentPage = SearchPage(panelController: panelController);
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       debugPrint("Initial querying...");
       queryNewMarkers();
@@ -297,6 +306,7 @@ class _MainMapState extends State<MainMap> {
           panelBuilder: (ScrollController sc) => _panel(sc),
           borderRadius: radius,
           collapsed: null,
+          maxHeight: MediaQuery.of(context).size.height * 0.52,
           body: FlutterMap(
             mapController: mapController,
             options: MapOptions(

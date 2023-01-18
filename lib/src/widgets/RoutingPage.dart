@@ -16,9 +16,9 @@ class _RoutingPageState extends State<RoutingPage> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          SearchBar(prompt: "From", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
+          DirectionSearchBar(prompt: "From", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
           Icon(Icons.arrow_downward),
-          SearchBar(prompt: "Destination", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
+          DirectionSearchBar(prompt: "Destination", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
           SizedBox(
             height: 16.0,
           ),
@@ -256,4 +256,42 @@ class Item {
   String expandedValue;
   String headerValue;
   bool isExpanded;
+}
+
+// TODO Replace this with a proper class for querying
+class DirectionSearchBar extends StatelessWidget {
+  const DirectionSearchBar({super.key,
+    required this.prompt,
+    this.fillColour = const Color.fromRGBO(222, 222, 222, 100),
+    this.textColour = Colors.grey
+  });
+
+  final String prompt;
+  final Color fillColour;
+  final Color textColour;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      cursorColor: Colors.grey,
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.zero,
+        fillColor: fillColour,
+        filled: true,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none
+        ),
+        hintText: prompt,
+        hintStyle: TextStyle(
+            color: textColour,
+            fontSize: 18
+        ),
+        prefixIcon: Container(
+          padding: EdgeInsets.all(15),
+          child: Icon(Icons.search),
+        ),
+      ),
+    );
+  }
 }
