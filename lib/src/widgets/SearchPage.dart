@@ -18,10 +18,12 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   List<DestinationCardParams> results = [];
+  bool searching = false;
 
   Future<void> findSearchResults(String term) async {
     const Distance distance = Distance();
 
+    setState(() => searching = true);
     List<NominatimElement> elements = await queryService.searchForPlace(term);
     Position currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
 
@@ -34,6 +36,7 @@ class _SearchPageState extends State<SearchPage> {
 
     setState(() {
       results = params;
+      searching = false;
     });
   }
 
@@ -49,6 +52,13 @@ class _SearchPageState extends State<SearchPage> {
             panelController: widget.panelController,
           ),
         ),
+        searching ? Container(
+          width: 50,
+          height: 50,
+          margin: EdgeInsets.all(10),
+          padding: EdgeInsets.all(10),
+          child: CircularProgressIndicator(),
+        ) :
         ListView.builder(
             shrinkWrap: true,
             physics: ClampingScrollPhysics(),
@@ -85,7 +95,7 @@ class DestinationCard extends StatelessWidget {
                 SizedBox(
                   height: 4.0,
                 ),
-                Text(distance + " km")
+                Text(distance + " km", textAlign: TextAlign.center),
               ],
             )),
             SizedBox(width: 15),
