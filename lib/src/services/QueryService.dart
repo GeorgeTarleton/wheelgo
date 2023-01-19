@@ -169,7 +169,7 @@ class QueryService {
   }
 
   Future<List<NominatimElement>> searchForPlace(String name) async {
-    String query = "https://nominatim.openstreetmap.org/search?q=$name,city=London&namedetails=1&addressdetails=1&limit=$searchLimit&format=json";
+    String query = "https://nominatim.openstreetmap.org/search?q=$name, Greater London&namedetails=1&addressdetails=1&limit=$searchLimit&format=json";
     final response = await http.get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());

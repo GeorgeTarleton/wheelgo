@@ -6,11 +6,16 @@ import 'package:wheelgo/src/widgets/MainMap.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../parameters/DestinationCardParams.dart';
+import '../parameters/MarkerInfo.dart';
 import 'SearchBar.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key, required this.panelController});
+  const SearchPage({super.key,
+    required this.panelController,
+    required this.onCardSelect,
+  });
   final PanelController panelController;
+  final Function(LatLng, MarkerInfo) onCardSelect;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -31,7 +36,12 @@ class _SearchPageState extends State<SearchPage> {
     List<DestinationCardParams> params = elements.map((e) {
       final double km = distance.as(LengthUnit.Kilometer, currentLocation, e.latlng);
 
-      return DestinationCardParams(name: e.basicName, address: e.address.toString(), distance: km.toStringAsFixed(1));
+      return DestinationCardParams(
+        name: e.basicName,
+        address: e.address.toString(), distance: km.toStringAsFixed(1),
+        markerInfo: MarkerInfo(id: e.id, type: e.type),
+        pos: e.latlng,
+      );
     }).toList();
 
     setState(() {
@@ -68,6 +78,9 @@ class _SearchPageState extends State<SearchPage> {
                 name: results[i].name,
                 address: results[i].address,
                 distance: results[i].distance,
+                pos: results[i].pos,
+                markerInfo: results[i].markerInfo,
+                onCardSelect: widget.onCardSelect,
               );
             }),
       ],
@@ -76,18 +89,28 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 class DestinationCard extends StatelessWidget {
-  const DestinationCard({super.key, required this.name, required this.address, required this.distance});
+  const DestinationCard({super.key,
+    required this.name,
+    required this.address,
+    required this.distance,
+    required this.pos,
+    required this.markerInfo,
+    required this.onCardSelect,
+  });
 
   final String name;
   final String address;
   final String distance;
+  final LatLng pos;
+  final MarkerInfo markerInfo;
+  final Function(LatLng, MarkerInfo) onCardSelect;
 
   @override
   Widget build(BuildContext context) {
     return Material(
       color: Colors.white,
       child: InkWell(
-        onTap: () => debugPrint("Tapped"),
+        onTap: () => onCardSelect(pos, markerInfo),
         child: Container(
             padding: const EdgeInsets.only(left: 20, right: 40, top: 8, bottom: 8),
             child: Row(

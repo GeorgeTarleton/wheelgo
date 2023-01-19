@@ -7,6 +7,7 @@ import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:collection/collection.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
@@ -35,6 +36,7 @@ LatLngBounds initBounds = LatLngBounds(
     LatLng(51.493136, -0.127109),
     LatLng(51.50586, -0.117402)
 );
+const double maxServerZoom = 18.49999999999999; // This is the max zoom for the server
 
 
 class MainMap extends StatefulWidget {
@@ -62,6 +64,10 @@ class _MainMapState extends State<MainMap> {
   Marker? selectedMarker;
   LatLngBounds lastBounds = initBounds;
 
+  final BorderRadiusGeometry radius = const BorderRadius.only(
+    topLeft: Radius.circular(24.0),
+    topRight: Radius.circular(24.0),
+  );
 
   void showRoutingResults() {
     // TODO Send off form info as params
@@ -73,16 +79,36 @@ class _MainMapState extends State<MainMap> {
   }
 
   Future<void> showPlaceDetailInfo(int id, AttractionType type) async {
-    // TODO Add identifying info as params
-    // TODO Do the querying/passing etc. (has example data for now)
-    // PlaceDetailParams params = queryService.getPlaceDetail(id, type);
-    setState(() => isLoadingSlideable = true);
+    setState(() {
+      isLoadingSlideable = true;
+      backButtonEnabled = true;
+    });
     PlaceDetailParams params = await queryService.queryPlace(id, type);
 
     currentPage = PlaceDetail(params: params);
-    backButtonEnabled = true;
     isLoadingSlideable = false;
     setState(() {});
+  }
+
+  bool locationsAreEqual(LatLng pos1, LatLng pos2) {
+    return (pos1.latitude - pos2.latitude).abs() < 0.0000004
+        && (pos1.longitude - pos2.longitude).abs() < 0.0000004;
+  }
+
+  void goToSearchResult(LatLng pos, MarkerInfo markerInfo) {
+    mapController.move(pos, maxServerZoom);
+    queryNewMarkers();
+    // Marker? existingMarker = markers.firstWhereOrNull((marker) => locationsAreEqual(marker.point, pos));
+    // if (existingMarker != null) {
+    //   selectMarker(existingMarker);
+    // } else {
+    //   Marker cardMarker = Marker(
+    //     point: pos,
+    //     builder: (ctx) => const Icon(Icons.location_pin),
+    //   );
+    //   queryService.markerInfoMap[cardMarker] = markerInfo;
+    //   selectMarker(cardMarker);
+    // }
   }
 
   void removeSelectedMarker(MarkerInfo markerInfo) {
@@ -119,7 +145,7 @@ class _MainMapState extends State<MainMap> {
     }
 
 
-    currentPage = SearchPage(panelController: panelController);
+    currentPage = SearchPage(panelController: panelController, onCardSelect: goToSearchResult);
     backButtonEnabled = false;
     setState(() {});
   }
@@ -272,21 +298,16 @@ class _MainMapState extends State<MainMap> {
   void initState() {
     super.initState();
     setState(() {
-      currentPage = SearchPage(panelController: panelController);
+      currentPage = SearchPage(panelController: panelController, onCardSelect: goToSearchResult);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       debugPrint("Initial querying...");
       queryNewMarkers();
-      debugPrint((await queryService.searchForPlace("Big ben")).toString());
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    BorderRadiusGeometry radius = const BorderRadius.only(
-      topLeft: Radius.circular(24.0),
-      topRight: Radius.circular(24.0),
-    );
 
     return WillPopScope(
       onWillPop: _onWillPop,
@@ -311,7 +332,7 @@ class _MainMapState extends State<MainMap> {
             mapController: mapController,
             options: MapOptions(
               bounds: initBounds,
-              maxZoom: 18.49999999999999, // This is the max zoom for the server
+              maxZoom: maxServerZoom,
               interactiveFlags: InteractiveFlag.all & ~InteractiveFlag.rotate,
               onMapEvent: (event) {
                 if (mapController.zoom > queryZoomThreshold &&
