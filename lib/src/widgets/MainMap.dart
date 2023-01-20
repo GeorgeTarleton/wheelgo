@@ -10,6 +10,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:collection/collection.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
+import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
 import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
@@ -25,6 +26,7 @@ import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 import '../parameters/MarkerInfo.dart';
+import 'RetryRequestPage.dart';
 
 QueryService queryService = QueryService();
 const double markerSize = 30;
@@ -83,11 +85,19 @@ class _MainMapState extends State<MainMap> {
       isLoadingSlideable = true;
       backButtonEnabled = true;
     });
-    PlaceDetailParams params = await queryService.queryPlace(id, type);
+    try {
+      PlaceDetailParams params = await queryService.queryPlace(id, type);
 
-    currentPage = PlaceDetail(params: params);
-    isLoadingSlideable = false;
-    setState(() {});
+      currentPage = PlaceDetail(params: params);
+      isLoadingSlideable = false;
+      setState(() {});
+    } on QueryFailedException {
+      // Show retry menu
+      panelController.open();
+      currentPage = RetryPlaceRequestPage(onRetry: () => showPlaceDetailInfo(id, type));
+      isLoadingSlideable = false;
+      setState(() {});
+    }
   }
 
   bool locationsAreEqual(LatLng pos1, LatLng pos2) {

@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
+import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
 import 'package:wheelgo/src/interfaces/Address.dart';
 
 import '../dtos/OSMElement.dart';
@@ -151,7 +152,7 @@ class QueryService {
       OverpassResponse opResponse = OverpassResponse.fromJson(jsonDecode(response.body));
       return opResponse.elements;
     } else {
-      throw Exception('Failed to load markers');
+      throw QueryFailedException('Failed to load markers');
     }
   }
 
@@ -164,7 +165,7 @@ class QueryService {
       PlaceDetailParams params = PlaceDetailParams.fromJson(jsonDecode(response.body)['elements'][0]['tags']);
       return params;
     } else {
-      throw Exception('Failed to load markers');
+      throw QueryFailedException('Failed to load place detail');
     }
   }
 
@@ -177,7 +178,7 @@ class QueryService {
       List<dynamic> results = jsonDecode(response.body);
       return results.map((r) => NominatimElement.fromJson(r)).toList();
     } else {
-      throw Exception('Failed to search');
+      throw QueryFailedException('Failed to search');
     }
   }
 
