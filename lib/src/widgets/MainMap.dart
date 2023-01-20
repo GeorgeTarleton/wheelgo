@@ -95,20 +95,17 @@ class _MainMapState extends State<MainMap> {
         && (pos1.longitude - pos2.longitude).abs() < 0.0000004;
   }
 
-  void goToSearchResult(LatLng pos, MarkerInfo markerInfo) {
-    mapController.move(pos, maxServerZoom);
-    queryNewMarkers();
-    // Marker? existingMarker = markers.firstWhereOrNull((marker) => locationsAreEqual(marker.point, pos));
-    // if (existingMarker != null) {
-    //   selectMarker(existingMarker);
-    // } else {
-    //   Marker cardMarker = Marker(
-    //     point: pos,
-    //     builder: (ctx) => const Icon(Icons.location_pin),
-    //   );
-    //   queryService.markerInfoMap[cardMarker] = markerInfo;
-    //   selectMarker(cardMarker);
-    // }
+  Future<void> goToSearchResult(LatLng pos, MarkerInfo markerInfo) async {
+    // Offset so the marker is displayed properly on the screen if selected
+    mapController.move(LatLng(pos.latitude - 0.0006, pos.longitude), maxServerZoom);
+    if (!lastBounds.containsBounds(mapController.bounds!)) {
+      await queryNewMarkers();
+    }
+
+    Marker? markedLocation = markers.firstWhereOrNull((marker) => locationsAreEqual(marker.point, pos));
+    if (markedLocation != null) {
+      selectMarker(markedLocation);
+    }
   }
 
   void removeSelectedMarker(MarkerInfo markerInfo) {
@@ -279,11 +276,11 @@ class _MainMapState extends State<MainMap> {
     return Future.value(true);
   }
 
-  void queryNewMarkers() {
+  Future<void> queryNewMarkers() async {
     setState(() => loadingMarkers = true);
     debugPrint("Setting loading to $loadingMarkers");
     resetBounds();
-    setMarkers(lastBounds.southWest!, lastBounds.northEast!);
+    await setMarkers(lastBounds.southWest!, lastBounds.northEast!);
   }
 
   Future<void> setMarkers(LatLng sw, LatLng ne) async {
@@ -300,7 +297,7 @@ class _MainMapState extends State<MainMap> {
     setState(() {
       currentPage = SearchPage(panelController: panelController, onCardSelect: goToSearchResult);
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       debugPrint("Initial querying...");
       queryNewMarkers();
     });
