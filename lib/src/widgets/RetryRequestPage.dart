@@ -4,9 +4,11 @@ import 'package:flutter/widgets.dart';
 class RetryPlaceRequestPage extends StatelessWidget {
   const RetryPlaceRequestPage({
     super.key,
+    required this.text,
     required this.onRetry,
   });
 
+  final String text;
   final void Function() onRetry;
 
   @override
@@ -15,7 +17,7 @@ class RetryPlaceRequestPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(height: 30),
-        Text("An error occurred!",
+        Text(text,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         SizedBox(height: 35),

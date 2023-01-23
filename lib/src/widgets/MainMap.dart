@@ -94,7 +94,10 @@ class _MainMapState extends State<MainMap> {
     } on QueryFailedException {
       // Show retry menu
       panelController.open();
-      currentPage = RetryPlaceRequestPage(onRetry: () => showPlaceDetailInfo(id, type));
+      currentPage = RetryPlaceRequestPage(
+        text: "An error occurred getting the information!",
+        onRetry: () => showPlaceDetailInfo(id, type),
+      );
       isLoadingSlideable = false;
       setState(() {});
     }
@@ -287,10 +290,23 @@ class _MainMapState extends State<MainMap> {
   }
 
   Future<void> queryNewMarkers() async {
-    setState(() => loadingMarkers = true);
-    debugPrint("Setting loading to $loadingMarkers");
-    resetBounds();
-    await setMarkers(lastBounds.southWest!, lastBounds.northEast!);
+    try {
+      setState(() => loadingMarkers = true);
+      debugPrint("Setting loading to $loadingMarkers");
+      resetBounds();
+      await setMarkers(lastBounds.southWest!, lastBounds.northEast!);
+    } on QueryFailedException {
+      // Show retry menu
+      panelController.open();
+      setState(() => loadingMarkers = false);
+      currentPage = RetryPlaceRequestPage(
+        text: "An error occurred getting markers!",
+        onRetry: () {
+          queryNewMarkers();
+          showSearchPage();
+        },
+      );
+    }
   }
 
   Future<void> setMarkers(LatLng sw, LatLng ne) async {
