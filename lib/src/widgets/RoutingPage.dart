@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wheelgo/src/widgets/SearchBar.dart';
+import 'package:wheelgo/src/dtos/NominatimElement.dart';
+import 'package:wheelgo/src/widgets/SearchPage.dart';
+
+import '../services/QueryService.dart';
 
 class RoutingPage extends StatefulWidget {
   const RoutingPage({super.key});
@@ -9,6 +12,9 @@ class RoutingPage extends StatefulWidget {
 }
 
 class _RoutingPageState extends State<RoutingPage> {
+  QueryService queryService = QueryService();
+  NominatimElement? fromLocation;
+  NominatimElement? destination;
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +22,56 @@ class _RoutingPageState extends State<RoutingPage> {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
-          DirectionSearchBar(prompt: "From", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
+          DirectionSearchBar(
+              prompt: "From",
+              textColour: Color.fromRGBO(53, 53, 53, 0.7),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) {
+                        return Scaffold(
+                          appBar: AppBar(
+                            title: const Text("Select Start", style: TextStyle(color: Colors.white)),
+                            backgroundColor: Theme.of(context).primaryColor,
+                          ),
+                          body: ListView(
+                              shrinkWrap: true,
+                              children: [
+                                SizedBox(height: 5),
+                                SearchPage(onCardSelect: (latlng, info) {  })
+                              ]
+                          ),
+                        );
+                      }),
+                );
+              }),
           Icon(Icons.arrow_downward),
-          DirectionSearchBar(prompt: "Destination", textColour: Color.fromRGBO(53, 53, 53, 0.7)),
-          SizedBox(
+          DirectionSearchBar(
+            prompt: "Destination",
+            textColour: Color.fromRGBO(53, 53, 53, 0.7),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) {
+                      return Scaffold(
+                        appBar: AppBar(
+                          title: const Text("Select Destination", style: TextStyle(color: Colors.white)),
+                          backgroundColor: Theme.of(context).primaryColor,
+                        ),
+                        body: ListView(
+                            shrinkWrap: true,
+                            children: [
+                              SizedBox(height: 5),
+                              SearchPage(onCardSelect: (latlng, info) {  })
+                            ]
+                        ),
+                      );
+                    }),
+              );
+            }),
+        SizedBox(
             height: 16.0,
           ),
           Row(
@@ -262,6 +314,7 @@ class Item {
 class DirectionSearchBar extends StatelessWidget {
   const DirectionSearchBar({super.key,
     required this.prompt,
+    required this.onTap,
     this.fillColour = const Color.fromRGBO(222, 222, 222, 100),
     this.textColour = Colors.grey
   });
@@ -269,10 +322,13 @@ class DirectionSearchBar extends StatelessWidget {
   final String prompt;
   final Color fillColour;
   final Color textColour;
+  final Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      readOnly: true,
+      onTap: onTap,
       cursorColor: Colors.grey,
       decoration: InputDecoration(
         contentPadding: EdgeInsets.zero,

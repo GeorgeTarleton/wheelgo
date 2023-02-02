@@ -11,11 +11,11 @@ import 'SearchBar.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key,
-    required this.panelController,
     required this.onCardSelect,
+    this.panelController,
   });
-  final PanelController panelController;
   final Function(LatLng, MarkerInfo) onCardSelect;
+  final PanelController? panelController;
 
   @override
   State<SearchPage> createState() => _SearchPageState();

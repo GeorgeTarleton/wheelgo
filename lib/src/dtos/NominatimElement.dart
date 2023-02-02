@@ -29,7 +29,7 @@ class NominatimElement {
         type: type,
         latlng: LatLng(double.parse(json['lat']), double.parse(json['lon'])),
         fullName: json['display_name'],
-        basicName: json['namedetails']['name'],
+        basicName: json['namedetails']['name'] ?? json['display_name'],
         address: Address(
           houseNumber: json['address']['house_number'],
           street: json['address']['road'],
@@ -38,8 +38,18 @@ class NominatimElement {
     );
   }
 
+  static List<NominatimElement> fromJsonList(List list) {
+    return list.map((item) => NominatimElement.fromJson(item)).toList();
+  }
+
   @override
   String toString() {
     return "NominatimElement{id: $id, type: $type, latlng: $latlng, fullName: $fullName, basicName: $basicName, address: ${address.toString()}";
   }
+
+  @override
+  bool isEqual(NominatimElement element) {
+    return id == element.id;
+  }
+
 }

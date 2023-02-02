@@ -4,7 +4,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class SearchBar extends StatelessWidget {
   const SearchBar({super.key,
     required this.prompt,
-    required this.panelController,
+    this.panelController,
     this.onSubmit,
     this.fillColour = const Color.fromRGBO(222, 222, 222, 100),
     this.textColour = Colors.grey
@@ -14,7 +14,7 @@ class SearchBar extends StatelessWidget {
   final Color fillColour;
   final Color textColour;
   final Function(String)? onSubmit;
-  final PanelController panelController;
+  final PanelController? panelController;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class SearchBar extends StatelessWidget {
         ),
       ),
       onSubmitted: onSubmit,
-      onTap: panelController.open,
+      onTap: panelController?.open,
     );
   }
 }
