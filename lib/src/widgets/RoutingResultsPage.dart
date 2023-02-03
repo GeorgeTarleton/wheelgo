@@ -291,7 +291,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
         children: [
           Icon(Icons.location_on),
           SizedBox(width: 20.0),
-          Text("Arrive at ${widget.destination}", style: TextStyle(fontSize: 16))
+          Expanded(child: Text("Arrive at ${widget.destination}", style: TextStyle(fontSize: 16)))
         ],
       ),
     ));
@@ -348,7 +348,7 @@ class PublicTransportInfo extends StatelessWidget {
       Row(
         children: [
           Container(
-            height: 125,
+            height: 135,
             alignment: Alignment.topLeft,
             child: const VerticalDivider(
               width: 44,
