@@ -16,4 +16,9 @@ class DestinationCardParams {
   final String distance;
   final MarkerInfo markerInfo;
   final LatLng pos;
+
+  @override
+  String toString() {
+    return "DestinationCardParams{name: $name, address: $address, distance: $distance, markerInfo: $markerInfo, pos: $pos}";
+  }
 }

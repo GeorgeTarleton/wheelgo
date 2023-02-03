@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
+import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 import 'package:wheelgo/src/parameters/DestinationCardParams.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
@@ -72,9 +73,13 @@ class _MainMapState extends State<MainMap> {
     topRight: Radius.circular(24.0),
   );
 
-  void showRoutingResults() {
+  void showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) {
     // TODO Send off form info as params
     // TODO Do querying and passing (has example data for now)
+    debugPrint(startInfo.toString());
+    debugPrint(finishInfo.toString());
+    debugPrint(restrictions.toString());
+
 
     currentPage = RoutingResultsPage(params: exampleRRParams);
     backButtonEnabled = true;
@@ -160,7 +165,6 @@ class _MainMapState extends State<MainMap> {
     backButtonEnabled = false;
     setState(() {});
   }
-
 
   Widget _panel(ScrollController sc) {
     return ListView(
@@ -345,7 +349,7 @@ class _MainMapState extends State<MainMap> {
             )
           ],
         ),
-        backLayer: RoutingPage(),
+        backLayer: RoutingPage(onSubmit: showRoutingResults),
         frontLayer: SlidingUpPanel(
           controller: panelController,
           panelBuilder: (ScrollController sc) => _panel(sc),

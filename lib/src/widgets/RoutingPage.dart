@@ -1,6 +1,8 @@
+import 'package:backdrop/backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wheelgo/src/dtos/NominatimElement.dart';
+import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 import '../parameters/DestinationCardParams.dart';
@@ -8,7 +10,12 @@ import '../parameters/MarkerInfo.dart';
 import '../services/QueryService.dart';
 
 class RoutingPage extends StatefulWidget {
-  const RoutingPage({super.key});
+  const RoutingPage({
+    super.key,
+    required this.onSubmit,
+  });
+
+  final Function(DestinationCardParams, DestinationCardParams, RestrictionsData) onSubmit;
 
   @override
   State<RoutingPage> createState() => _RoutingPageState();
@@ -18,11 +25,7 @@ class _RoutingPageState extends State<RoutingPage> {
   QueryService queryService = QueryService();
   DestinationCardParams? originInfo;
   DestinationCardParams? destinationInfo;
-  int inclination = 6;
-  double maxKerbHeight = 0.06;
-  String routeSmoothness = "Good";
-  bool avoidSteps = true;
-  bool usePublicTransport = true;
+  RestrictionsData restrictionsData = RestrictionsData();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class _RoutingPageState extends State<RoutingPage> {
         children: [
           DirectionSearchBar(
               prompt: originInfo?.name ?? "From",
-              textColour: Color.fromRGBO(53, 53, 53, 0.7),
+              textColour: originInfo == null ? Color.fromRGBO(53, 53, 53, 0.7) : Color.fromRGBO(0, 0, 0, 1),
               onTap: () {
                 Navigator.push(
                   context,
@@ -62,7 +65,7 @@ class _RoutingPageState extends State<RoutingPage> {
           SizedBox(height: 5),
           DirectionSearchBar(
             prompt: destinationInfo?.name ?? "Destination",
-            textColour: Color.fromRGBO(53, 53, 53, 0.7),
+            textColour: destinationInfo == null ? Color.fromRGBO(53, 53, 53, 0.7) : Color.fromRGBO(0, 0, 0, 1),
             onTap: () {
               Navigator.push(
                 context,
@@ -94,39 +97,53 @@ class _RoutingPageState extends State<RoutingPage> {
               IconToggleButton(
                 icon: Icon(Icons.train_outlined),
                 selectedIcon: Icon(Icons.train),
-                selected: !usePublicTransport,
-                onPressed: () => setState(() => usePublicTransport = !usePublicTransport),
+                selected: !restrictionsData.usePublicTransport,
+                onPressed: () => setState(() => restrictionsData.usePublicTransport = !restrictionsData.usePublicTransport),
                 getDefaultStyle: filledButtonStyle,
               ),
               SizedBox(width: 10),
               IconToggleButton(
                 selectedIcon: Icon(Icons.accessible_forward_outlined),
                 icon: Icon(Icons.accessible_forward),
-                selected: usePublicTransport,
-                onPressed: () => setState(() => usePublicTransport = !usePublicTransport),
+                selected: restrictionsData.usePublicTransport,
+                onPressed: () => setState(() => restrictionsData.usePublicTransport = !restrictionsData.usePublicTransport),
                 getDefaultStyle: filledButtonStyle,
               ),
             ],
           ),
           SizedBox(height: 16),
           RestrictionPanel(
-            inclination: inclination,
-            maxKerbHeight: maxKerbHeight,
-            routeSmoothness: routeSmoothness,
-            avoidSteps: avoidSteps,
+            inclination: restrictionsData.inclination,
+            maxKerbHeight: restrictionsData.maxKerbHeight,
+            routeSmoothness: restrictionsData.routeSmoothness,
+            avoidSteps: restrictionsData.avoidSteps,
           ),
           SizedBox(height: 16),
-          TextButton(onPressed: () {}, child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Text(
-              "Search",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-            ),
-          )),
+          TextButton(
+              onPressed: () {
+                if (originInfo != null && destinationInfo != null) {
+                  Backdrop.of(context).concealBackLayer();
+                  widget.onSubmit(originInfo!, destinationInfo!, restrictionsData);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Please select start and finish locations!")
+                      )
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(5),
+                  ),
+                ),
+                child: Text("Search",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                ),
+              )
+          ),
         ]
       ),
     );
