@@ -51,6 +51,7 @@ class RoutingResultsPage extends StatelessWidget {
 
     return ListView(
         shrinkWrap: true,
+        physics: ClampingScrollPhysics(),
         children: [
           Container(
             padding: EdgeInsets.only(left: 20, top: 4, right: 20, bottom: 8),
@@ -356,18 +357,20 @@ class PublicTransportInfo extends StatelessWidget {
             ),
           ),
           SizedBox(width: 20.0),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("${firstRide.line} Line",
-                  style: TextStyle(fontSize: 16)),
-              SizedBox(height: 5),
-              Text("${firstRide.startStation} to $nextStation for ${firstRide.duration.inMinutes} mins",
-                  style: TextStyle(fontSize: 16)),
-              SizedBox(height: 5),
-              StopsDropDown(stops: firstRide.stops),
-            ],
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("${firstRide.line} Line",
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 5),
+                Text("${firstRide.startStation} to $nextStation for ${firstRide.duration.inMinutes} mins",
+                    style: TextStyle(fontSize: 16)),
+                SizedBox(height: 5),
+                StopsDropDown(stops: firstRide.stops),
+              ],
+            ),
           ),
         ],
       ),
@@ -403,18 +406,20 @@ class PublicTransportInfo extends StatelessWidget {
               ),
             ),
             SizedBox(width: 20.0),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("${leg.rides[i].line} Line",
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 5),
-                Text("${leg.rides[i].startStation} to $nextStation for ${leg.rides[i].duration.inMinutes} mins",
-                    style: TextStyle(fontSize: 16)),
-                SizedBox(height: 5),
-                StopsDropDown(stops: leg.rides[i].stops),
-              ],
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("${leg.rides[i].line} Line",
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  Text("${leg.rides[i].startStation} to $nextStation for ${leg.rides[i].duration.inMinutes} mins",
+                      style: TextStyle(fontSize: 16)),
+                  SizedBox(height: 5),
+                  StopsDropDown(stops: leg.rides[i].stops),
+                ],
+              ),
             ),
           ],
         ),
@@ -528,16 +533,18 @@ class ArrivalInfo extends StatelessWidget {
             child: Icon(Icons.location_on_outlined, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text.rich(TextSpan(
-            children: [
-              TextSpan(text: "Arrive at ",
-                  style: TextStyle(fontSize: 18)),
-              TextSpan(text: destination,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              TextSpan(text: " at ${arrivalTime.format(context)}",
-                  style: TextStyle(fontSize: 18)),
-            ]
-          )),
+          Expanded(
+            child: Text.rich(TextSpan(
+              children: [
+                TextSpan(text: "Arrive at ",
+                    style: TextStyle(fontSize: 18)),
+                TextSpan(text: destination,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                TextSpan(text: " at ${arrivalTime.format(context)}",
+                    style: TextStyle(fontSize: 18)),
+              ]
+            )),
+          ),
         ],
       ),
     );
