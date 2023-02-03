@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
+import '../parameters/DestinationCardParams.dart';
+import '../parameters/MarkerInfo.dart';
 import '../services/QueryService.dart';
 
 class RoutingPage extends StatefulWidget {
@@ -13,8 +16,13 @@ class RoutingPage extends StatefulWidget {
 
 class _RoutingPageState extends State<RoutingPage> {
   QueryService queryService = QueryService();
-  NominatimElement? fromLocation;
-  NominatimElement? destination;
+  DestinationCardParams? originInfo;
+  DestinationCardParams? destinationInfo;
+  int inclination = 6;
+  double maxKerbHeight = 0.06;
+  String routeSmoothness = "Good";
+  bool avoidSteps = true;
+  bool usePublicTransport = true;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +31,7 @@ class _RoutingPageState extends State<RoutingPage> {
       child: Column(
         children: [
           DirectionSearchBar(
-              prompt: "From",
+              prompt: originInfo?.name ?? "From",
               textColour: Color.fromRGBO(53, 53, 53, 0.7),
               onTap: () {
                 Navigator.push(
@@ -39,16 +47,21 @@ class _RoutingPageState extends State<RoutingPage> {
                               shrinkWrap: true,
                               children: [
                                 SizedBox(height: 5),
-                                SearchPage(onCardSelect: (latlng, info) {  })
+                                SearchPage(onCardSelect: (params) {
+                                  setState(() => originInfo = params);
+                                  Navigator.pop(context);
+                                })
                               ]
                           ),
                         );
                       }),
                 );
               }),
+          SizedBox(height: 5),
           Icon(Icons.arrow_downward),
+          SizedBox(height: 5),
           DirectionSearchBar(
-            prompt: "Destination",
+            prompt: destinationInfo?.name ?? "Destination",
             textColour: Color.fromRGBO(53, 53, 53, 0.7),
             onTap: () {
               Navigator.push(
@@ -64,26 +77,44 @@ class _RoutingPageState extends State<RoutingPage> {
                             shrinkWrap: true,
                             children: [
                               SizedBox(height: 5),
-                              SearchPage(onCardSelect: (latlng, info) {  })
+                              SearchPage(onCardSelect: (params) {
+                                setState(() => destinationInfo = params);
+                                Navigator.pop(context);
+                              })
                             ]
                         ),
                       );
                     }),
               );
             }),
-        SizedBox(
-            height: 16.0,
-          ),
+          SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconToggleButton(icon: Icon(Icons.train_outlined), selectedIcon: Icon(Icons.train), getDefaultStyle: filledButtonStyle),
+              IconToggleButton(
+                icon: Icon(Icons.train_outlined),
+                selectedIcon: Icon(Icons.train),
+                selected: !usePublicTransport,
+                onPressed: () => setState(() => usePublicTransport = !usePublicTransport),
+                getDefaultStyle: filledButtonStyle,
+              ),
               SizedBox(width: 10),
-              IconToggleButton(icon: Icon(Icons.accessible_forward_outlined), selectedIcon: Icon(Icons.accessible_forward), getDefaultStyle: filledButtonStyle),
+              IconToggleButton(
+                selectedIcon: Icon(Icons.accessible_forward_outlined),
+                icon: Icon(Icons.accessible_forward),
+                selected: usePublicTransport,
+                onPressed: () => setState(() => usePublicTransport = !usePublicTransport),
+                getDefaultStyle: filledButtonStyle,
+              ),
             ],
           ),
           SizedBox(height: 16),
-          RestrictionPanel(),
+          RestrictionPanel(
+            inclination: inclination,
+            maxKerbHeight: maxKerbHeight,
+            routeSmoothness: routeSmoothness,
+            avoidSteps: avoidSteps,
+          ),
           SizedBox(height: 16),
           TextButton(onPressed: () {}, child: Container(
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -103,7 +134,18 @@ class _RoutingPageState extends State<RoutingPage> {
 }
 
 class RestrictionPanel extends StatefulWidget {
-  const RestrictionPanel({super.key});
+  RestrictionPanel({
+    super.key,
+    required this.inclination,
+    required this.maxKerbHeight,
+    required this.routeSmoothness,
+    required this.avoidSteps,
+  });
+
+  int inclination;
+  double maxKerbHeight;
+  String routeSmoothness;
+  bool avoidSteps;
 
   @override
   State<StatefulWidget> createState() => _RestrictionPanelState();
@@ -111,11 +153,6 @@ class RestrictionPanel extends StatefulWidget {
 
 class _RestrictionPanelState extends State<RestrictionPanel> {
   Item restrictions = Item(expandedValue: "Option1", headerValue: "Restrictions");
-
-  int inclination = 6;
-  double maxKerbHeight = 0.06;
-  String routeSmoothness = "Good";
-  bool avoidSteps = true;
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +170,10 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
             ListTile(title:
               Row(
                 children: [
-                  Text("Max inclination"),
+                  Text("Max inclination (%)"),
                   Spacer(),
                   DropdownButton<int>(
-                    value: inclination,
+                    value: widget.inclination,
                     icon: const Icon(Icons.arrow_downward),
                     elevation: 16,
                     underline: Container(
@@ -145,7 +182,7 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                     ),
                     onChanged: (int? value) {
                       setState(() {
-                        inclination = value!;
+                        widget.inclination = value!;
                       });
                     },
                     items: [
@@ -161,10 +198,10 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
             ListTile(title:
               Row(
                 children: [
-                  Text("Max kerb height"),
+                  Text("Max kerb height (m)"),
                   Spacer(),
                   DropdownButton<double>(
-                    value: maxKerbHeight,
+                    value: widget.maxKerbHeight,
                     icon: const Icon(Icons.arrow_downward),
                     elevation: 16,
                     underline: Container(
@@ -173,13 +210,13 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                     ),
                     onChanged: (double? value) {
                       setState(() {
-                        maxKerbHeight = value!;
+                        widget.maxKerbHeight = value!;
                       });
                     },
                     items: [
                       DropdownMenuItem(value: 0.03, child: Text("0.03")),
-                      DropdownMenuItem(value: 0.06, child: Text("0.03")),
-                      DropdownMenuItem(value: 0.1, child: Text("0.03"))
+                      DropdownMenuItem(value: 0.06, child: Text("0.06")),
+                      DropdownMenuItem(value: 0.1, child: Text("0.1"))
                     ],
                   )
                 ],
@@ -191,7 +228,7 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                   Text("Route smoothness"),
                   Spacer(),
                   DropdownButton<String>(
-                    value: routeSmoothness,
+                    value: widget.routeSmoothness,
                     icon: const Icon(Icons.arrow_downward),
                     elevation: 16,
                     underline: Container(
@@ -200,7 +237,7 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                     ),
                     onChanged: (String? value) {
                       setState(() {
-                        routeSmoothness = value!;
+                        widget.routeSmoothness = value!;
                       });
                     },
                     items: [
@@ -220,10 +257,10 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                   Spacer(),
                   Checkbox(
                     checkColor: Colors.white,
-                    value: avoidSteps,
+                    value: widget.avoidSteps,
                     onChanged: (bool? value) {
                       setState(() {
-                        avoidSteps = value!;
+                        widget.avoidSteps = value!;
                       });
                     },
                   )
@@ -241,39 +278,39 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
 }
 
 class IconToggleButton extends StatefulWidget {
-  const IconToggleButton(
-  {super.key, required this.icon, required this.selectedIcon, this.getDefaultStyle});
+  IconToggleButton({super.key,
+    required this.icon,
+    required this.selectedIcon,
+    required this.selected,
+    required this.onPressed,
+    this.getDefaultStyle,
+  });
 
   final ButtonStyle? Function(bool, ColorScheme)? getDefaultStyle;
   final Icon icon;
   final Icon selectedIcon;
+  final Function() onPressed;
+  bool selected;
 
   @override
   State<IconToggleButton> createState() => _IconToggleButtonState();
 }
 
 class _IconToggleButtonState extends State<IconToggleButton> {
-  bool selected = false;
 
   @override
   Widget build(BuildContext context) {
     final ColorScheme colors = Theme.of(context).colorScheme;
-    onPressed() {
-      setState(() {
-        selected = !selected;
-      });
-    }
-
     ButtonStyle? style;
     if (widget.getDefaultStyle != null) {
-      style = widget.getDefaultStyle!(selected, colors);
+      style = widget.getDefaultStyle!(widget.selected, colors);
     }
 
     return IconButton(
-      isSelected: selected,
+      isSelected: widget.selected,
       icon: widget.icon,
       selectedIcon: widget.selectedIcon,
-      onPressed: onPressed,
+      onPressed: widget.onPressed,
       iconSize: 30,
       style: style,
     );

@@ -11,6 +11,7 @@ import 'package:collection/collection.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
+import 'package:wheelgo/src/parameters/DestinationCardParams.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
 import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
@@ -108,14 +109,14 @@ class _MainMapState extends State<MainMap> {
         && (pos1.longitude - pos2.longitude).abs() < 0.0000004;
   }
 
-  Future<void> goToSearchResult(LatLng pos, MarkerInfo markerInfo) async {
+  Future<void> goToSearchResult(DestinationCardParams params) async {
     // Offset so the marker is displayed properly on the screen if selected
-    mapController.move(LatLng(pos.latitude - 0.0006, pos.longitude), maxServerZoom);
+    mapController.move(LatLng(params.pos.latitude - 0.0006, params.pos.longitude), maxServerZoom);
     if (!lastBounds.containsBounds(mapController.bounds!)) {
       await queryNewMarkers();
     }
 
-    Marker? markedLocation = markers.firstWhereOrNull((marker) => locationsAreEqual(marker.point, pos));
+    Marker? markedLocation = markers.firstWhereOrNull((marker) => locationsAreEqual(marker.point, params.pos));
     if (markedLocation != null) {
       selectMarker(markedLocation);
     }
