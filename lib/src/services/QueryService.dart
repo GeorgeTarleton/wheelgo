@@ -9,11 +9,13 @@ import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
+import 'package:wheelgo/src/exceptions/RouteNotFoundException.dart';
 import 'package:wheelgo/src/interfaces/Address.dart';
 import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 
 import '../dtos/ORSResult.dart';
 import '../dtos/OSMElement.dart';
+import '../dtos/TFLResult.dart';
 import '../enums/AttractionType.dart';
 import '../enums/AttractionType.dart';
 import '../enums/WheelchairRating.dart';
@@ -232,8 +234,19 @@ class QueryService {
       debugPrint(response.body);
       return ORSResult.fromJson(jsonDecode(response.body));
     } else {
-      throw QueryFailedException('Failed to search');
+      debugPrint(jsonDecode(response.body)['error'].toString());
+
+      if (jsonDecode(response.body)['error']['code'] == 2009) {
+        throw RouteNotFoundException("Route not found");
+      } else {
+        throw QueryFailedException('Failed to search');
+      }
     }
   }
+
+  // Future<TFLResult> queryTfl(LatLng from, LatLng to) {
+  //   String query = "https://api.tfl.gov.uk/Journey";
+  //
+  // }
 
 }

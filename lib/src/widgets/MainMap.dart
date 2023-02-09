@@ -12,6 +12,7 @@ import 'package:wheelgo/src/dtos/ORSResult.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
+import 'package:wheelgo/src/exceptions/RouteNotFoundException.dart';
 import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 import 'package:wheelgo/src/parameters/DestinationCardParams.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
@@ -77,17 +78,22 @@ class _MainMapState extends State<MainMap> {
   Future<void> showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) async {
     // TODO Send off form info as params
     // TODO Do querying and passing (has example data for now)
+    setState(() {
+      isLoadingSlideable = true;
+      backButtonEnabled = true;
+    });
     debugPrint(startInfo.toString());
     debugPrint(finishInfo.toString());
     debugPrint(restrictions.toString());
     RoutingResultsPageParams params = exampleRRParams;
-    if (restrictions.usePublicTransport == false) {
-      ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
-      debugPrint(result.toString());
+    try {
+      if (restrictions.usePublicTransport == false) {
+        ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
+        debugPrint(result.toString());
 
-      final now = DateTime.now();
-      final arrivalTime = now.add(result.duration);
-      params = RoutingResultsPageParams(
+        final now = DateTime.now();
+        final arrivalTime = now.add(result.duration);
+        params = RoutingResultsPageParams(
           duration: result.duration,
           distance: result.distance,
           arrivalTime: TimeOfDay.fromDateTime(arrivalTime),
@@ -95,14 +101,32 @@ class _MainMapState extends State<MainMap> {
           destination: finishInfo.name,
           legs: result.legs,
           elevation: result.elevation,
+        );
+      } else {
+        // TODO query TFL
+      }
+
+
+      currentPage = RoutingResultsPage(params: params);
+      isLoadingSlideable = false;
+      setState(() {});
+    } on RouteNotFoundException catch(e) {
+      panelController.open();
+      currentPage = RetryPlaceRequestPage(
+        text: "No route found! Please select other points.",
       );
+      isLoadingSlideable = false;
+      setState(() {});
+    } on QueryFailedException catch(e) {
+      // Show retry menu
+      panelController.open();
+      currentPage = RetryPlaceRequestPage(
+        text: "An error occurred getting the information!",
+        onRetry: () => showRoutingResults(startInfo, finishInfo, restrictions),
+      );
+      isLoadingSlideable = false;
+      setState(() {});
     }
-
-
-
-    currentPage = RoutingResultsPage(params: params);
-    backButtonEnabled = true;
-    setState(() {});
   }
 
   Future<void> showPlaceDetailInfo(int id, AttractionType type) async {

@@ -5,11 +5,11 @@ class RetryPlaceRequestPage extends StatelessWidget {
   const RetryPlaceRequestPage({
     super.key,
     required this.text,
-    required this.onRetry,
+    this.onRetry,
   });
 
   final String text;
-  final void Function() onRetry;
+  final void Function()? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +17,21 @@ class RetryPlaceRequestPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(height: 30),
-        Text(text,
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        Container(
+          padding: EdgeInsets.only(left: 10, right: 10),
+          child: Text(text,
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
         ),
         SizedBox(height: 35),
-        ElevatedButton(
+        onRetry != null ? ElevatedButton(
           onPressed: onRetry,
           child: Container(
             padding: EdgeInsets.all(20),
             child: Text("Retry", style: TextStyle(fontSize: 24)),
           ),
-        ),
+        ) : Container(),
       ],
     );
   }
