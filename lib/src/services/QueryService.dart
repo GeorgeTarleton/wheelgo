@@ -10,6 +10,7 @@ import 'package:wheelgo/src/dtos/OverpassResponse.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
 import 'package:wheelgo/src/interfaces/Address.dart';
+import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 
 import '../dtos/OSMElement.dart';
 import '../enums/AttractionType.dart';
@@ -178,6 +179,59 @@ class QueryService {
     if (response.statusCode == 200) {
       List<dynamic> results = jsonDecode(response.body);
       return results.map((r) => NominatimElement.fromJson(r)).toList();
+    } else {
+      throw QueryFailedException('Failed to search');
+    }
+  }
+
+  Future<List<WheelingLeg>> queryORS(List<LatLng> coords, RestrictionsData restrictions) async {
+    String query = "https://api.openrouteservice.org/v2/directions/wheelchair";
+    Map<String, String> headers = {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+      'Authorization': "5b3ce3597851110001cf624826af508aff94406c98ec0eccd6725c15",
+    };
+
+    List<List<double>> parsedCoords = coords.map((e) => [e.longitude, e.latitude]).toList();
+
+    List<int> skippedSegments = [];
+    if (coords.length > 2) {
+      for (int i=2; i < coords.length; i += 2) {
+        skippedSegments.add(i);
+      }
+    }
+
+    Map<String, dynamic> options = {
+      'profile_params': {
+        'allow_unsuitable': 'false',
+        'restrictions': {
+          'maximum_incline': '${restrictions.inclination}',
+          'maximum_sloped_kerb': '${restrictions.maxKerbHeight}',
+          'smoothness_type': '${restrictions.routeSmoothness}',
+        }
+      }
+    };
+    if (restrictions.avoidSteps) {
+      options['avoid_features'] = ["steps"];
+    }
+
+    Map<String, dynamic> body = {
+      'coordinates': parsedCoords,
+      'elevation': 'true',
+      'options': options,
+    };
+    if (skippedSegments.isNotEmpty) {
+      body['skip_segments'] = json.encode(skippedSegments);
+    }
+
+
+    final response = await http.post(Uri.parse(query), headers: headers, body: json.encode(body));
+
+    debugPrint(json.encode(body));
+    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      debugPrint(response.body);
+      return List.empty();
     } else {
       throw QueryFailedException('Failed to search');
     }

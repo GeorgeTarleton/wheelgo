@@ -2,7 +2,7 @@ class RestrictionsData {
   RestrictionsData({
     this.inclination = 6,
     this.maxKerbHeight = 0.06,
-    this.routeSmoothness = "Good",
+    this.routeSmoothness = "good",
     this.avoidSteps = true,
     this.usePublicTransport = true,
   });

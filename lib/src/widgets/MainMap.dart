@@ -79,6 +79,7 @@ class _MainMapState extends State<MainMap> {
     debugPrint(startInfo.toString());
     debugPrint(finishInfo.toString());
     debugPrint(restrictions.toString());
+    queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
 
 
     currentPage = RoutingResultsPage(params: exampleRRParams);

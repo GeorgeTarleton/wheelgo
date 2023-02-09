@@ -258,10 +258,10 @@ class _RestrictionPanelState extends State<RestrictionPanel> {
                       });
                     },
                     items: [
-                      DropdownMenuItem(value: "Bad", child: Text("Bad")),
-                      DropdownMenuItem(value: "Intermediate", child: Text("Intermediate")),
-                      DropdownMenuItem(value: "Good", child: Text("Good")),
-                      DropdownMenuItem(value: "Excellent", child: Text("Excellent"))
+                      DropdownMenuItem(value: "bad", child: Text("Bad")),
+                      DropdownMenuItem(value: "intermediate", child: Text("Intermediate")),
+                      DropdownMenuItem(value: "good", child: Text("Good")),
+                      DropdownMenuItem(value: "excellent", child: Text("Excellent"))
                     ],
                   )
                 ],
