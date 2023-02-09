@@ -133,7 +133,7 @@ class KeyInfo extends StatelessWidget {
               children: [
                 Row(children: legIcons),
                 SizedBox(height: 4.0),
-                Text(currencyFormat.format(price),
+                Text(price != null ? currencyFormat.format(price) : "£ - ",
                   textAlign: TextAlign.left,
                   style: TextStyle(fontSize: 12),
                 ),
@@ -141,7 +141,7 @@ class KeyInfo extends StatelessWidget {
             ),
             Column(
               children: [
-                Text("${duration.inMinutes} mins - ${distance.round()} km",
+                Text("${duration.inMinutes} mins - ${distance.toStringAsFixed(2)} km",
                   textAlign: TextAlign.left,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
@@ -209,7 +209,7 @@ class WheelingInfo extends StatelessWidget {
               child: Icon(Icons.accessible_forward, color: Colors.white),
             ),
             SizedBox(width: 20.0),
-            Text("Travel for ${leg.duration.inMinutes} minutes (${leg.distance} km)", style: TextStyle(fontSize: 18)),
+            Text("Travel for ${leg.duration.inMinutes} minutes (${leg.distance.toStringAsFixed(2)} km)", style: TextStyle(fontSize: 18)),
           ],
         ),
         Row(
@@ -249,7 +249,9 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
     double width = MediaQuery.of(context).size.width;
 
     List<Widget> directionSteps = [];
-    for (final direction in widget.directions) {
+    for (int i=0; i < widget.directions.length-1; i++) {
+      final direction = widget.directions[i];
+
       directionSteps.add(
         Align(alignment: Alignment.topLeft,
             child: Container(padding: EdgeInsets.all(12),
@@ -261,7 +263,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("${direction.distance} km", style: TextStyle(fontSize: 16)),
+                Text("${direction.distance.toStringAsFixed(2)} m", style: TextStyle(fontSize: 16)),
                 Text("${direction.duration.inMinutes} mins, ${direction.duration.inSeconds % 60} secs", style: TextStyle(fontSize: 16))
               ],
             ),
@@ -290,7 +292,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
         children: [
           Icon(Icons.location_on),
           SizedBox(width: 20.0),
-          Expanded(child: Text("Arrive", style: TextStyle(fontSize: 16)))
+          Expanded(child: Text(widget.directions[widget.directions.length-1].description, style: TextStyle(fontSize: 16)))
         ],
       ),
     ));
@@ -306,8 +308,13 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
             headerBuilder: (context, isExpanded) {
               return ListTile(title: Text("Directions"));
             },
-            body: Column(
-              children: directionSteps,
+            body: InkWell(
+              onTap: () => setState(() {
+                active = !active;
+              }),
+              child: Column(
+                children: directionSteps,
+              ),
             ),
             isExpanded: active,
             canTapOnHeader: true,

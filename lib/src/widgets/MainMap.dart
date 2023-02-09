@@ -80,11 +80,27 @@ class _MainMapState extends State<MainMap> {
     debugPrint(startInfo.toString());
     debugPrint(finishInfo.toString());
     debugPrint(restrictions.toString());
-    ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
-    debugPrint(result.toString());
+    RoutingResultsPageParams params = exampleRRParams;
+    if (restrictions.usePublicTransport == false) {
+      ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
+      debugPrint(result.toString());
+
+      final now = DateTime.now();
+      final arrivalTime = now.add(result.duration);
+      params = RoutingResultsPageParams(
+          duration: result.duration,
+          distance: result.distance,
+          arrivalTime: TimeOfDay.fromDateTime(arrivalTime),
+          start: startInfo.name,
+          destination: finishInfo.name,
+          legs: result.legs,
+          elevation: result.elevation,
+      );
+    }
 
 
-    currentPage = RoutingResultsPage(params: exampleRRParams);
+
+    currentPage = RoutingResultsPage(params: params);
     backButtonEnabled = true;
     setState(() {});
   }

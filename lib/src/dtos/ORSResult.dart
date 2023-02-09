@@ -31,7 +31,7 @@ class ORSResult {
 
       legs.add(WheelingLeg(
           duration: Duration(seconds: segments[i]['duration'].round()),
-          distance: segments[i]['distance'],
+          distance: segments[i]['distance'] / 1000,
           directions: directions,
       ));
     }
@@ -39,7 +39,7 @@ class ORSResult {
     return ORSResult(
         elevation: Elevation(up: json['routes'][0]['summary']['ascent'].round(), down: json['routes'][0]['summary']['descent'].round()),
         duration: Duration(seconds: json['routes'][0]['summary']['duration'].round()),
-        distance: json['routes'][0]['summary']['distance'],
+        distance: json['routes'][0]['summary']['distance'] / 1000,
         legs: legs,
     );
   }
