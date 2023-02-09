@@ -12,6 +12,7 @@ import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
 import 'package:wheelgo/src/interfaces/Address.dart';
 import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 
+import '../dtos/ORSResult.dart';
 import '../dtos/OSMElement.dart';
 import '../enums/AttractionType.dart';
 import '../enums/AttractionType.dart';
@@ -38,7 +39,6 @@ const exampleRRParams = RoutingResultsPageParams(
     WheelingLeg(
       duration: Duration(minutes: 20),
       distance: 5,
-      destination: "Partway Destination",
       directions: [
         WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
         WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
@@ -51,7 +51,6 @@ const exampleRRParams = RoutingResultsPageParams(
     WheelingLeg(
       duration: Duration(minutes: 20),
       distance: 5,
-      destination: "Partway Destination",
       directions: [
         WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
         WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
@@ -184,7 +183,7 @@ class QueryService {
     }
   }
 
-  Future<List<WheelingLeg>> queryORS(List<LatLng> coords, RestrictionsData restrictions) async {
+  Future<ORSResult> queryORS(List<LatLng> coords, RestrictionsData restrictions) async {
     String query = "https://api.openrouteservice.org/v2/directions/wheelchair";
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=utf-8',
@@ -231,7 +230,7 @@ class QueryService {
     debugPrint(response.statusCode.toString());
     if (response.statusCode == 200) {
       debugPrint(response.body);
-      return List.empty();
+      return ORSResult.fromJson(jsonDecode(response.body));
     } else {
       throw QueryFailedException('Failed to search');
     }

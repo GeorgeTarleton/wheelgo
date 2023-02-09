@@ -224,7 +224,7 @@ class WheelingInfo extends StatelessWidget {
               ),
             ),
             SizedBox(width: 20.0),
-            DirectionsDropDown(directions: leg.directions, destination: leg.destination),
+            DirectionsDropDown(directions: leg.directions),
           ],
         ),
       ],
@@ -233,10 +233,9 @@ class WheelingInfo extends StatelessWidget {
 }
 
 class DirectionsDropDown extends StatefulWidget {
-  const DirectionsDropDown({super.key, required this.directions, required this.destination});
+  const DirectionsDropDown({super.key, required this.directions});
 
   final List<WheelingDirection> directions;
-  final String destination;
 
   @override
   State<StatefulWidget> createState() => _DirectionsDropDownState();
@@ -291,7 +290,7 @@ class _DirectionsDropDownState extends State<DirectionsDropDown> {
         children: [
           Icon(Icons.location_on),
           SizedBox(width: 20.0),
-          Expanded(child: Text("Arrive at ${widget.destination}", style: TextStyle(fontSize: 16)))
+          Expanded(child: Text("Arrive", style: TextStyle(fontSize: 16)))
         ],
       ),
     ));

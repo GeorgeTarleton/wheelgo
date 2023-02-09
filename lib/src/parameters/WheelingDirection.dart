@@ -8,4 +8,9 @@ class WheelingDirection {
   final String description;
   final double distance;
   final Duration duration;
+
+  @override
+  String toString() {
+    return "WheelingDirection{decription: $description, distance: $distance, duration: ${duration.inSeconds}}";
+  }
 }

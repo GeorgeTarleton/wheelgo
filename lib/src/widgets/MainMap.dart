@@ -8,6 +8,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:collection/collection.dart';
+import 'package:wheelgo/src/dtos/ORSResult.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
@@ -73,13 +74,14 @@ class _MainMapState extends State<MainMap> {
     topRight: Radius.circular(24.0),
   );
 
-  void showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) {
+  Future<void> showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) async {
     // TODO Send off form info as params
     // TODO Do querying and passing (has example data for now)
     debugPrint(startInfo.toString());
     debugPrint(finishInfo.toString());
     debugPrint(restrictions.toString());
-    queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
+    ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
+    debugPrint(result.toString());
 
 
     currentPage = RoutingResultsPage(params: exampleRRParams);
