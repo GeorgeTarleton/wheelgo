@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:collection/collection.dart';
 import 'package:wheelgo/src/dtos/ORSResult.dart';
+import 'package:wheelgo/src/dtos/TFLResult.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
@@ -104,6 +105,9 @@ class _MainMapState extends State<MainMap> {
         );
       } else {
         // TODO query TFL
+        debugPrint("Querying TFL...");
+        TFLResult result = await queryService.queryTfl(startInfo.pos, finishInfo.pos);
+        debugPrint(result.toString());
       }
 
 

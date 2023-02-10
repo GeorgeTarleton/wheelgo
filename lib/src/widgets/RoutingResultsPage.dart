@@ -100,6 +100,8 @@ class KeyInfo extends StatelessWidget {
         return const Icon(Icons.train);
       case TravelLegType.other:
         return const Icon(Icons.arrow_circle_right);
+      default:
+        return const Icon(Icons.arrow_circle_right);
     }
   }
 

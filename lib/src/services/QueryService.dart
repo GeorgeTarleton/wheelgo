@@ -220,6 +220,7 @@ class QueryService {
       'coordinates': parsedCoords,
       'elevation': 'true',
       'options': options,
+      'radiuses': [-1],
     };
     if (skippedSegments.isNotEmpty) {
       body['skip_segments'] = json.encode(skippedSegments);
@@ -244,9 +245,23 @@ class QueryService {
     }
   }
 
-  // Future<TFLResult> queryTfl(LatLng from, LatLng to) {
-  //   String query = "https://api.tfl.gov.uk/Journey";
-  //
-  // }
+  Future<TFLResult> queryTfl(LatLng from, LatLng to) async {
+    final queryParams = {
+      'accessibilityPreference': 'stepFreeToPlatform',
+      'useMultiModelCall': 'false',
+      'calcOneDirection': 'true',
+      'mode': 'bus,cable-car,coach,dlr,elizabeth-line,national-rail,overground,replacement-bus,river-bus,tram,tube,walking'
+    };
+    final uri = Uri.https("api.tfl.gov.uk", "/Journey/JourneyResults/${from.latitude},${from.longitude}/to/${to.latitude},${to.longitude}", queryParams);
+    debugPrint(uri.toString());
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      debugPrint(response.body);
+      return TFLResult.fromJson(jsonDecode(response.body));
+    } else {
+      debugPrint(response.statusCode.toString());
+      throw QueryFailedException('Failed to search');
+    }
+  }
 
 }

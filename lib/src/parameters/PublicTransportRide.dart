@@ -14,4 +14,9 @@ class PublicTransportRide {
   final String line;
   final Duration duration;
   final List<String> stops;
+
+  @override
+  String toString() {
+    return "PublicTransportRide{startStation: $startStation, leavingTime: $leavingTime, line: $line, duration: $duration, stops: $stops}";
+  }
 }

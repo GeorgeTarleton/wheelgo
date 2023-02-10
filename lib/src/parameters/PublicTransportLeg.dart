@@ -19,4 +19,9 @@ class PublicTransportLeg implements TravelLeg {
   TravelLegType getType() {
     return TravelLegType.publicTransport;
   }
+
+  @override
+  String toString() {
+    return "PublicTransportLeg{finalStation: $finalStation, arrivalTime: $arrivalTime, rides: ${rides.toString()}";
+  }
 }
