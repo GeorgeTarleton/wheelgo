@@ -8,11 +8,13 @@ class PublicTransportLeg implements TravelLeg {
   const PublicTransportLeg({
     required this.finalStation,
     required this.arrivalTime,
+    required this.duration,
     required this.rides,
   });
 
   final String finalStation;
   final TimeOfDay arrivalTime;
+  final Duration duration;
   final List<PublicTransportRide> rides;
 
   @override
@@ -22,6 +24,6 @@ class PublicTransportLeg implements TravelLeg {
 
   @override
   String toString() {
-    return "PublicTransportLeg{finalStation: $finalStation, arrivalTime: $arrivalTime, rides: ${rides.toString()}";
+    return "PublicTransportLeg{finalStation: $finalStation, arrivalTime: $arrivalTime, duration: $duration, rides: ${rides.toString()}";
   }
 }

@@ -57,6 +57,7 @@ class TFLResult {
         legs.add(PublicTransportLeg(
             finalStation: leg['path']['stopPoints'].last['name'],
             arrivalTime: TimeOfDay.fromDateTime(DateTime.parse(leg['arrivalTime'])),
+            duration: Duration(minutes: leg['duration']),
             rides: rides,
         ));
       }

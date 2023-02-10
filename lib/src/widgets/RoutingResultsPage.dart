@@ -350,7 +350,7 @@ class PublicTransportInfo extends StatelessWidget {
             child: Icon(Icons.train, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text("${firstRide.startStation} at ${firstRide.leavingTime.format(context)}", style: TextStyle(fontSize: 18)),
+          Expanded(child: Text("${firstRide.startStation} at ${firstRide.leavingTime.format(context)}", style: TextStyle(fontSize: 18)),)
         ],
       ),
       Row(
@@ -446,7 +446,7 @@ class PublicTransportInfo extends StatelessWidget {
             child: Icon(Icons.train, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text("Exit at ${leg.finalStation} at ${leg.arrivalTime.format(context)}", style: TextStyle(fontSize: 18)),
+          Expanded(child: Text("Exit at ${leg.finalStation} at ${leg.arrivalTime.format(context)}", style: TextStyle(fontSize: 18))),
         ],
       ),
       Container(
@@ -495,23 +495,28 @@ class _StopsDropDownState extends State<StopsDropDown> {
             headerBuilder: (context, isExpanded) {
               return ListTile(title: Text("Stops"));
             },
-            body: Column(
-            children: widget.stops
-                    .map(
-                      (stop) => Container(
-                        padding:
-                            EdgeInsets.only(left: 12, right: 12, bottom: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Icon(Icons.arrow_forward),
-                            SizedBox(width: 10),
-                            Text(stop),
-                          ],
+            body: InkWell(
+              onTap: () => setState(() {
+                active = !active;
+              }),
+              child: Column(
+              children: widget.stops
+                      .map(
+                        (stop) => Container(
+                          padding:
+                              EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Icon(Icons.arrow_forward),
+                              SizedBox(width: 10),
+                              Expanded(child: Text(stop)),
+                            ],
+                          ),
                         ),
-                      ),
-                    ).toList(),
-              ),
+                      ).toList(),
+                ),
+            ),
               isExpanded: active,
           canTapOnHeader: true,
         ),

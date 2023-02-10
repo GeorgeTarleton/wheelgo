@@ -11,16 +11,19 @@ import 'package:collection/collection.dart';
 import 'package:wheelgo/src/dtos/ORSResult.dart';
 import 'package:wheelgo/src/dtos/TFLResult.dart';
 import 'package:wheelgo/src/enums/AttractionType.dart';
+import 'package:wheelgo/src/enums/TravelLegType.dart';
 import 'package:wheelgo/src/enums/WheelchairRating.dart';
 import 'package:wheelgo/src/exceptions/QueryFailedException.dart';
 import 'package:wheelgo/src/exceptions/RouteNotFoundException.dart';
 import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
+import 'package:wheelgo/src/interfaces/TravelLeg.dart';
 import 'package:wheelgo/src/parameters/DestinationCardParams.dart';
 import 'package:wheelgo/src/parameters/Elevation.dart';
 import 'package:wheelgo/src/parameters/PlaceDetailParams.dart';
 import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
 import 'package:wheelgo/src/parameters/PublicTransportRide.dart';
 import 'package:wheelgo/src/parameters/RoutingResultsPageParams.dart';
+import 'package:wheelgo/src/parameters/TflWalkingLeg.dart';
 import 'package:wheelgo/src/parameters/WheelingDirection.dart';
 import 'package:wheelgo/src/parameters/WheelingLeg.dart';
 import 'package:wheelgo/src/services/QueryService.dart';
@@ -77,16 +80,12 @@ class _MainMapState extends State<MainMap> {
   );
 
   Future<void> showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) async {
-    // TODO Send off form info as params
-    // TODO Do querying and passing (has example data for now)
     setState(() {
       isLoadingSlideable = true;
       backButtonEnabled = true;
     });
-    debugPrint(startInfo.toString());
-    debugPrint(finishInfo.toString());
-    debugPrint(restrictions.toString());
-    RoutingResultsPageParams params = exampleRRParams;
+
+    RoutingResultsPageParams params;
     try {
       if (restrictions.usePublicTransport == false) {
         ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
@@ -104,10 +103,55 @@ class _MainMapState extends State<MainMap> {
           elevation: result.elevation,
         );
       } else {
-        // TODO query TFL
-        debugPrint("Querying TFL...");
         TFLResult result = await queryService.queryTfl(startInfo.pos, finishInfo.pos);
-        debugPrint(result.toString());
+        debugPrint("TFL RESULTS: ${result.toString()}");
+
+        // Convert results into params
+        List<LatLng> walkingSegments = [];
+        for (final leg in result.legs) {
+          if (leg.getType() == TravelLegType.walking) {
+            TflWalkingLeg walkingLeg = leg as TflWalkingLeg;
+            walkingSegments.addAll([walkingLeg.start, walkingLeg.finish]);
+          }
+        }
+
+        // Query ORS with the walking distances
+        ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
+        debugPrint("ORS RESULTS: ${orsResult.toString()}");
+
+        // Merge the two lists
+        int wheelingInd = 0;
+        Duration duration = Duration();
+        double distance = 0;
+        List<TravelLeg> finalLegs = [];
+        for (final leg in result.legs) {
+          if (leg.getType() == TravelLegType.walking) {
+            finalLegs.add(orsResult.legs[wheelingInd]);
+
+            duration += orsResult.legs[wheelingInd].duration;
+            distance += orsResult.legs[wheelingInd].distance;
+            wheelingInd++;
+          } else {
+            finalLegs.add(leg);
+            duration += (leg as PublicTransportLeg).duration;
+          }
+        }
+
+
+
+        // Set params
+        params = RoutingResultsPageParams(
+            duration: duration,
+            distance: distance,
+            arrivalTime: TimeOfDay.fromDateTime(DateTime.now().add(duration)),
+            start: startInfo.name,
+            destination: finishInfo.name,
+            price: result.price,
+            legs: finalLegs,
+            elevation: orsResult.elevation,
+        );
+
+        debugPrint(params.toString());
       }
 
 
