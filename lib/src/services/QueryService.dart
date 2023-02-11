@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -66,6 +67,7 @@ class QueryService {
   Map<Marker, MarkerInfo> markerInfoMap = {};
   final searchLimit = 10;
   final overpassUrl = "https://overpass.kumi.systems/api/interpreter";
+  final searchRadius = 100;
 
   PlaceDetailParams getPlaceDetail(int id, AttractionType type) {
     return PlaceDetailParams(
@@ -116,8 +118,8 @@ class QueryService {
     for (OSMElement node in nodes) {
       List<OSMElement> dupNodes = uniqueNodes.where((currentNode) =>
         // This is the smallest value I consider equal
-       (currentNode.lat - node.lat).abs() < 0.0000004
-            && (currentNode.lon - node.lon).abs() < 0.0000004).toList();
+       (currentNode.lat! - node.lat!).abs() < 0.0000004
+            && (currentNode.lon! - node.lon!).abs() < 0.0000004).toList();
 
       if (dupNodes.isEmpty) {
         uniqueNodes.add(node);
@@ -129,7 +131,7 @@ class QueryService {
 
     List<Marker> nodeMakers = uniqueNodes.map((node) {
         Marker nodeMarker = Marker(
-          point: LatLng(node.lat, node.lon),
+          point: LatLng(node.lat!, node.lon!),
           width: markerSize,
           height: markerSize,
           builder: (context) => const Icon(
@@ -147,7 +149,7 @@ class QueryService {
   }
 
   Future<List<OSMElement>> queryNodes(LatLng southWest, LatLng northEast) async {
-    String query = overpassUrl + "/api/interpreter?data=[out:json][bbox:${southWest.latitude}, ${southWest.longitude}, ${northEast.latitude}, ${northEast.longitude}];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];node[\"shop\"][\"wheelchair\"];node[\"public_transport\"~\"station|platform\"];node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"];node[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];node[\"sport\"][\"wheelchair\"];);out body;(way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];way[\"attraction\"];way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"][!\"highway\"];way[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];);out center;";
+    String query = "$overpassUrl/api/interpreter?data=[out:json][bbox:${southWest.latitude}, ${southWest.longitude}, ${northEast.latitude}, ${northEast.longitude}];(node[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];node[\"shop\"][\"wheelchair\"];node[\"public_transport\"~\"station|platform\"];node[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"];node[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];node[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];node[\"sport\"][\"wheelchair\"];);out body;(way[\"amenity\"~\"bar|pub|biergarten|cafe|fast_food|food_court|ice_cream|restaurant|college|driving_school|kindergarten|language_school|library|toy_library|training|music_school|school|university|bank|bureau_de_change|clinic|dentist|doctors|hospital|nursing_home|pharmacy|social_facility|vetinary|arts_centre|casino|cinema|community_centre|conference_centre|events_venue|nightclub|planetarium|social_centre|studio|theatre|courthouse|police|post_office|prison|townhall|toilets|animal_shelter|childcare|crematorium|funeral_hall|internet_cafe|monastery|place_of_worship|public_bath\"][\"wheelchair\"];way[\"shop\"][\"wheelchair\"];way[\"attraction\"];way[\"tourism\"~\"aquarium|attraction|gallery|hostel|hotel|museum|theme_park|viewpoint|zoo|yes\"][!\"highway\"];way[\"tourism\"~\"information\"][\"information\"~\"office|visitor_centre\"];way[\"leisure\"~\"adult_gaming_centre|amusement_arcade|bowling_alley|dance|disc_golf_course|escape_game|fitness_centre|garden|golf_course|miniature_golf|resort|sports_centre|sports_hall|stadium|swimming_pool|track|tanning_salon|water_park\"][\"wheelchair\"];way[\"sport\"][\"wheelchair\"];);out center;";
     final response = await http.get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());
@@ -160,7 +162,7 @@ class QueryService {
   }
 
   Future<PlaceDetailParams> queryPlace(int id, AttractionType type) async {
-    String query = overpassUrl + "/api/interpreter?data=[out:json];${describeEnum(type)}($id);out body;";
+    String query = "$overpassUrl/api/interpreter?data=[out:json];${describeEnum(type)}($id);out body;";
     final response = await http.get(Uri.parse(query));
 
     debugPrint(response.statusCode.toString());
@@ -169,6 +171,69 @@ class QueryService {
       return params;
     } else {
       throw QueryFailedException('Failed to load place detail');
+    }
+  }
+
+
+  Future<List<LatLng>> findShortestRoutablePoints(List<LatLng> points) async {
+    String query = "$overpassUrl/api/interpreter?data=[out:json];";
+    for (final point in points) {
+      query += "way(around:$searchRadius,${point.latitude},${point.longitude})[\"highway\"=\"footway\"];>;out body;make separator;out;";
+    }
+    final response = await http.get(Uri.parse(query));
+    debugPrint("Query: $query");
+
+    debugPrint(response.statusCode.toString());
+    if (response.statusCode == 200) {
+      OverpassResponse opResponse = OverpassResponse.fromJson(jsonDecode(response.body));
+
+      // Parse the results for the routable point candidates
+      List<List<LatLng>> routablePointOptions = [];
+      List<LatLng> currentPoints = [];
+      debugPrint("Elements: ${opResponse.elements}");
+      for (final element in opResponse.elements) {
+        if (element.type == AttractionType.separator) {
+          routablePointOptions.add(currentPoints);
+          currentPoints = [];
+        } else {
+          currentPoints.add(LatLng(element.lat!, element.lon!));
+        }
+      }
+
+      debugPrint("routablePointOptions: ${routablePointOptions.toString()}");
+      debugPrint(routablePointOptions.length.toString());
+
+      // Find shortest routable point for each point
+      Distance distance = Distance();
+      List<LatLng> shortestRoutablePoints = [];
+      for (int i=0; i < routablePointOptions.length; i++) {
+        List<double> distances = routablePointOptions[i]
+            .map((pointOption) => distance.as(LengthUnit.Centimeter, pointOption, points[i])).toList();
+
+        int minInd = 0;
+        debugPrint("RoutablePointOptions: $routablePointOptions");
+        debugPrint("Distances: $distances}");
+        if (distances.isEmpty) {
+          debugPrint("Distances is empty!");
+          shortestRoutablePoints.add(points[i]);
+        } else {
+          double minVal = distances.first;
+          for (int j=0; j < distances.length; j++) {
+            if (distances[j] < minVal) {
+              minInd = j;
+              minVal = distances[j];
+            }
+          }
+        }
+
+        shortestRoutablePoints.add(routablePointOptions[i][minInd]);
+      }
+      debugPrint("Shortest points: ${shortestRoutablePoints.toString()}");
+
+      return shortestRoutablePoints;
+
+    } else {
+      throw QueryFailedException('Failed to load routable points');
     }
   }
 
@@ -193,11 +258,14 @@ class QueryService {
       'Authorization': "5b3ce3597851110001cf624826af508aff94406c98ec0eccd6725c15",
     };
 
+    debugPrint(
+        "Coords: [${coords.first.longitude},${coords.first.latitude}],[${coords
+            .last.longitude},${coords.last.latitude}]");
     List<List<double>> parsedCoords = coords.map((e) => [e.longitude, e.latitude]).toList();
 
     List<int> skippedSegments = [];
     if (coords.length > 2) {
-      for (int i=2; i < coords.length; i += 2) {
+      for (int i = 2; i < coords.length; i += 2) {
         skippedSegments.add(i);
       }
     }
@@ -227,7 +295,8 @@ class QueryService {
     }
 
 
-    final response = await http.post(Uri.parse(query), headers: headers, body: json.encode(body));
+    final response = await http.post(
+        Uri.parse(query), headers: headers, body: json.encode(body));
 
     debugPrint(json.encode(body));
     debugPrint(response.statusCode.toString());

@@ -36,8 +36,10 @@ class ORSResult {
       ));
     }
 
+    double elevationUp = json['routes'][0]['summary']['ascent'] ?? 0;
+    double elevationDown = json['routes'][0]['summary']['descent'] ?? 0;
     return ORSResult(
-        elevation: Elevation(up: json['routes'][0]['summary']['ascent'].round(), down: json['routes'][0]['summary']['descent'].round()),
+        elevation: Elevation(up: elevationUp.round(), down: elevationDown.round()),
         duration: Duration(seconds: json['routes'][0]['summary']['duration'].round()),
         distance: json['routes'][0]['summary']['distance'] / 1000,
         legs: legs,

@@ -37,7 +37,7 @@ class RoutingResultsPage extends StatelessWidget {
         case TravelLegType.publicTransport:
           sections.add(PublicTransportInfo(leg: leg as PublicTransportLeg));
           break;
-        case TravelLegType.other:
+        default:
           throw Exception("Unsupported travel type");
       }
     }
@@ -129,27 +129,30 @@ class KeyInfo extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Column(
-              children: [
-                Row(children: legIcons),
-                SizedBox(height: 4.0),
-                Text(price != null ? currencyFormat.format(price) : "£ - ",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 12),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                children: [
+                  Wrap(alignment: WrapAlignment.center, children: legIcons),
+                  SizedBox(height: 4.0),
+                  Text(price != null ? currencyFormat.format(price) : "£ - ",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-            Column(
-              children: [
-                Text("${duration.inMinutes} mins - ${distance.toStringAsFixed(2)} km",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4.0),
-                Text("Arrival time: ${arrivalTime.format(context)}", textAlign: TextAlign.left),
-              ],
+            Expanded(
+              child: Column(
+                children: [
+                  Text("${duration.inMinutes} mins - ${distance.toStringAsFixed(2)} km",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 4.0),
+                  Text("Arrival time: ${arrivalTime.format(context)}", textAlign: TextAlign.left),
+                ],
+              ),
             ),
           ],
         ),
@@ -399,7 +402,7 @@ class PublicTransportInfo extends StatelessWidget {
               child: Icon(Icons.train, color: Colors.white),
             ),
             SizedBox(width: 20.0),
-            Text("Change at ${leg.rides[i].startStation}", style: TextStyle(fontSize: 18)),
+            Expanded(child: Text("Change at ${leg.rides[i].startStation}", style: TextStyle(fontSize: 18))),
           ],
         ),
         Row(

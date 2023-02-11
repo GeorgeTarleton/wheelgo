@@ -88,7 +88,9 @@ class _MainMapState extends State<MainMap> {
     RoutingResultsPageParams params;
     try {
       if (restrictions.usePublicTransport == false) {
-        ORSResult result = await queryService.queryORS([startInfo.pos, finishInfo.pos], restrictions);
+        List<LatLng> routablePoints = await queryService.findShortestRoutablePoints([startInfo.pos, finishInfo.pos]);
+
+        ORSResult result = await queryService.queryORS(routablePoints, restrictions);
         debugPrint(result.toString());
 
         final now = DateTime.now();
@@ -115,6 +117,9 @@ class _MainMapState extends State<MainMap> {
           }
         }
 
+        // Convert points into closest routable points
+        walkingSegments = await queryService.findShortestRoutablePoints(walkingSegments);
+
         // Query ORS with the walking distances
         ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
         debugPrint("ORS RESULTS: ${orsResult.toString()}");
@@ -136,8 +141,6 @@ class _MainMapState extends State<MainMap> {
             duration += (leg as PublicTransportLeg).duration;
           }
         }
-
-
 
         // Set params
         params = RoutingResultsPageParams(
