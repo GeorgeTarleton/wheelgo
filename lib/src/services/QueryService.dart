@@ -30,39 +30,6 @@ import '../parameters/WheelingDirection.dart';
 import '../parameters/WheelingLeg.dart';
 import '../widgets/MainMap.dart';
 
-// const exampleRRParams = RoutingResultsPageParams(
-//   duration: Duration(hours: 1, minutes: 5),
-//   distance: 20,
-//   arrivalTime: TimeOfDay(hour: 11, minute: 5),
-//   price: 5.20,
-//   start: "Start Location",
-//   destination: "Destination Location",
-//   elevation: Elevation(up: 10, down: 8),
-//   legs: [
-//     WheelingLeg(
-//       duration: Duration(minutes: 20),
-//       distance: 5,
-//       directions: [
-//         WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-//         WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-//       ],
-//     ),
-//     PublicTransportLeg(finalStation: "Final Station", arrivalTime: TimeOfDay(hour: 11, minute: 5), rides: [
-//       PublicTransportRide(startStation: "Start Station", leavingTime: TimeOfDay(hour: 10, minute: 30), line: "Line1", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-//       PublicTransportRide(startStation: "Next Station", leavingTime: TimeOfDay(hour: 10, minute: 50), line: "Line2", duration: Duration(minutes: 10), stops: ["Stop 1", "Stop 2"]),
-//     ]),
-//     WheelingLeg(
-//       duration: Duration(minutes: 20),
-//       distance: 5,
-//       directions: [
-//         WheelingDirection(description: "Direction1", distance: 2, duration: Duration(minutes: 8)),
-//         WheelingDirection(description: "Direction2", distance: 3, duration: Duration(minutes: 12)),
-//       ],
-//     ),
-//   ],
-// );
-
-
 class QueryService {
   Map<Marker, MarkerInfo> markerInfoMap = {};
   final searchLimit = 10;
@@ -293,7 +260,6 @@ class QueryService {
     if (skippedSegments.isNotEmpty) {
       body['skip_segments'] = skippedSegments;
     }
-
 
     final response = await http.post(
         Uri.parse(query), headers: headers, body: json.encode(body));

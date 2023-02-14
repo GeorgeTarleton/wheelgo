@@ -34,6 +34,7 @@ import 'package:wheelgo/src/widgets/RoutingResultsPage.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
 
 import '../parameters/MarkerInfo.dart';
+import '../utilities/DecodePolyline.dart';
 import 'RetryRequestPage.dart';
 
 QueryService queryService = QueryService();
@@ -71,6 +72,7 @@ class _MainMapState extends State<MainMap> {
   bool loadingMarkers = false;
   bool isLoadingSlideable = false;
   List<Marker> markers = [];
+  List<Polyline> polylines = [];
   Marker? selectedMarker;
   LatLngBounds lastBounds = initBounds;
 
@@ -104,6 +106,21 @@ class _MainMapState extends State<MainMap> {
           legs: result.legs,
           elevation: result.elevation,
         );
+
+        debugPrint("POLYLINE STR IS: ${result.polylineStr}");
+        if (result.polylineStr != null) {
+          debugPrint("DECODED: ${decodePolyline(result.polylineStr!, true).unpackPolyline()}");
+
+          setState(() {
+            polylines.add(Polyline(
+                points: decodePolyline(result.polylineStr!, true).unpackPolyline(),
+                color: Colors.red,
+              strokeWidth: 6
+            ));
+          });
+
+          debugPrint("POLYLINES: ${polylines.toString()}");
+        }
       } else {
         TFLResult result = await queryService.queryTfl(startInfo.pos, finishInfo.pos);
         debugPrint("TFL RESULTS: ${result.toString()}");
@@ -253,7 +270,7 @@ class _MainMapState extends State<MainMap> {
 
       selectedMarker = null;
     }
-
+    polylines = [];
 
     currentPage = SearchPage(panelController: panelController, onCardSelect: goToSearchResult);
     backButtonEnabled = false;
@@ -474,6 +491,9 @@ class _MainMapState extends State<MainMap> {
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.example.app',
+              ),
+              PolylineLayer(
+                polylines: polylines,
               ),
               CurrentLocationLayer(),
               MarkerClusterLayerWidget(

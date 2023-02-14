@@ -7,12 +7,14 @@ class ORSResult {
   final double distance;
   final Duration duration;
   final Elevation elevation;
+  final String? polylineStr;
   final List<WheelingLeg> legs;
 
   const ORSResult({
     required this.distance,
     required this.duration,
     required this.elevation,
+    this.polylineStr,
     required this.legs,
   });
 
@@ -42,6 +44,7 @@ class ORSResult {
         elevation: Elevation(up: elevationUp.round(), down: elevationDown.round()),
         duration: Duration(seconds: json['routes'][0]['summary']['duration'].round()),
         distance: json['routes'][0]['summary']['distance'] / 1000,
+        polylineStr: json['routes'][0]['geometry'],
         legs: legs,
     );
   }
