@@ -23,16 +23,11 @@ class ORSResult {
     required this.legs,
   });
 
-  static List<Polyline> getPolylines(List<LatLng> queriedCoords, List<LatLng> fullPolyline) {
+  static List<Polyline> getPolylines(List<dynamic> queriedInds, List<LatLng> fullPolyline, dynamic json) {
     List<Polyline> polylines = [];
-    debugPrint("FIRST ELEMENT QUERIED: ${queriedCoords.first}");
-    debugPrint("FRIST ELEMENT ROUTE: ${fullPolyline.first}");
-    for (int i=0; i < queriedCoords.length; i+=2) {
-      int indexOfFirst = fullPolyline.indexOf(queriedCoords[i]);
-      int indexOfBreak = fullPolyline.indexOf(queriedCoords[i+1]);
-
+    for (int i=0; i < queriedInds.length; i+=2) {
       polylines.add(Polyline(
-          points: fullPolyline.sublist(indexOfFirst, indexOfBreak+1),
+          points: fullPolyline.sublist(queriedInds[i], queriedInds[i+1]+1),
           color: Colors.red,
           strokeWidth: 6
       ));
@@ -45,16 +40,8 @@ class ORSResult {
     List<dynamic> segments = json['routes'][0]['segments'];
     List<WheelingLeg> legs = [];
 
-    List<LatLng> queriedCoords = [];
-    for (final coord in json['metadata']['query']['coordinates']) {
-      // Have to round it to 5dp, as that's what encoded in the polyline from ORS
-      queriedCoords.add(LatLng(
-          double.parse((coord[1]).toStringAsFixed(5)),
-          double.parse((coord[0]).toStringAsFixed(5))
-      ));
-    }
     List<LatLng> fullPolyline = decodePolyline(json['routes'][0]['geometry'], true).unpackPolyline();
-    List<Polyline> polylines = getPolylines(queriedCoords, fullPolyline);
+    List<Polyline> polylines = getPolylines(json['routes'][0]['way_points'], fullPolyline, json);
 
     for (int i=0; i < segments.length; i += 2) {
       List<WheelingDirection> directions = [];
