@@ -38,13 +38,18 @@ class TFLResult {
 
       else {
         List<PublicTransportRide> rides = [];
+        List<LatLng> legPath = [];
         while (json['journeys'][0]['legs'][i]['mode']['id'] != "walking" && i < json['journeys'][0]['legs'].length) {
-          leg = json['journeys'][0]['legs'][i];
-
           List<String> stops = [];
           for (final stop in leg['path']['stopPoints']) {
             stops.add(stop['name']);
           }
+
+          List<dynamic> legPathStrs = jsonDecode(leg['path']['lineString']);
+          legPath.addAll(legPathStrs.map((e) => LatLng(e[0], e[1])).toList());
+          debugPrint("LEG PATH: ${legPath.toString()}");
+          debugPrint("LEG PATH LEN: ${legPath.length}");
+          debugPrint("CURRENT LEN: ${legPathStrs.map((e) => LatLng(e[0], e[1])).toList().length}");
 
           rides.add(PublicTransportRide(
               startStation: leg['path']['stopPoints'][0]['name'],
@@ -54,11 +59,8 @@ class TFLResult {
               stops: stops
           ));
           i++;
+          debugPrint("I process public transport");
         }
-
-        List<dynamic> legPathStrs = jsonDecode(leg['path']['lineString']);
-        List<LatLng> legPath = legPathStrs.map((e) => LatLng(e[0], e[1])).toList();
-        debugPrint("LEG PATH: ${legPath.toString()}");
 
         legs.add(PublicTransportLeg(
             finalStation: leg['path']['stopPoints'].last['name'],

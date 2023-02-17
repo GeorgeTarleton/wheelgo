@@ -107,16 +107,9 @@ class _MainMapState extends State<MainMap> {
           elevation: result.elevation,
         );
 
-        debugPrint("POLYLINE STR IS: ${result.polylineStr}");
-        if (result.polylineStr != null) {
-          debugPrint("DECODED: ${decodePolyline(result.polylineStr!, true).unpackPolyline()}");
-
+        if (result.polylines.isNotEmpty) {
           setState(() {
-            polylines.add(Polyline(
-                points: decodePolyline(result.polylineStr!, true).unpackPolyline(),
-                color: Colors.red,
-              strokeWidth: 6
-            ));
+            polylines.addAll(result.polylines);
           });
 
           debugPrint("POLYLINES: ${polylines.toString()}");
@@ -141,11 +134,16 @@ class _MainMapState extends State<MainMap> {
         ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
         debugPrint("ORS RESULTS: ${orsResult.toString()}");
 
+        polylines.addAll(orsResult.polylines);
+
         // Merge the two lists
         int wheelingInd = 0;
         Duration duration = Duration();
         double distance = 0;
         List<TravelLeg> finalLegs = [];
+        // for (final leg in result.legs) {
+        //   debugPrint("Type of leg is: ${leg.getType()}");
+        // }
         for (final leg in result.legs) {
           if (leg.getType() == TravelLegType.walking) {
             finalLegs.add(orsResult.legs[wheelingInd]);
@@ -156,8 +154,18 @@ class _MainMapState extends State<MainMap> {
           } else {
             finalLegs.add(leg);
             duration += (leg as PublicTransportLeg).duration;
+            debugPrint("Transport leg path: ${leg.finalStation} ${leg.path}");
+            debugPrint("FINAL PATH LEN: ${leg.path.length}");
+            polylines.add(Polyline(
+              points: leg.path,
+              color: Colors.orange,
+              strokeWidth: 6,
+            ));
           }
         }
+        setState(() {
+          polylines = polylines.toList();
+        });
 
         // Set params
         params = RoutingResultsPageParams(

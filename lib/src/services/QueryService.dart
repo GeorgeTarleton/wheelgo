@@ -141,7 +141,7 @@ class QueryService {
     }
   }
 
-
+  // For each list segment, have start encoded at the start, and end at the end
   Future<List<LatLng>> findShortestRoutablePoints(List<LatLng> points) async {
     String query = "$overpassUrl/api/interpreter?data=[out:json];";
     for (final point in points) {
@@ -264,7 +264,7 @@ class QueryService {
     final response = await http.post(
         Uri.parse(query), headers: headers, body: json.encode(body));
 
-    debugPrint(json.encode(body));
+    debugPrint("ORS body: ${json.encode(body)}");
     debugPrint(response.statusCode.toString());
     debugPrint(skippedSegments.toString());
     if (response.statusCode == 200) {
