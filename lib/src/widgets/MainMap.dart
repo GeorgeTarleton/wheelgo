@@ -151,7 +151,7 @@ class _MainMapState extends State<MainMap> {
 
             polylines.add(Polyline(
               points: leg.path,
-              color: Colors.orange,
+              color: Colors.purpleAccent,
               strokeWidth: 6,
             ));
           }

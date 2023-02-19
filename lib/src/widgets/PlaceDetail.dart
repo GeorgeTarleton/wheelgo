@@ -98,18 +98,6 @@ class PlaceDetail extends StatelessWidget {
           ),
           SizedBox(height: 16.0),
           Container(
-            padding: const EdgeInsets.only(left: 4),
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  textStyle: const TextStyle(fontSize: 20)
-              ),
-              child: const Text("Directions"),
-            ),
-          ),
-          SizedBox(height: 16.0),
-          Container(
             padding: const EdgeInsets.only(left: 8, right: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

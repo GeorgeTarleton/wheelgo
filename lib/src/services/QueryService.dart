@@ -149,7 +149,7 @@ class QueryService {
 
     String query = "$overpassUrl/api/interpreter?data=[out:json];";
     for (final point in points) {
-      query += "way(around:$searchRadius,${point.latitude},${point.longitude})[\"highway\"=\"footway\"];>;out body;make separator;out;";
+      query += "way(around:$searchRadius,${point.latitude},${point.longitude})[\"highway\"=\"footway\"][\"indoor\"!=\"yes\"];>;out body;make separator;out;";
     }
     final response = await http.get(Uri.parse(query));
 
@@ -188,9 +188,10 @@ class QueryService {
               minVal = distances[j];
             }
           }
+
+          shortestRoutablePoints.add(routablePointOptions[i][minInd]);
         }
 
-        shortestRoutablePoints.add(routablePointOptions[i][minInd]);
       }
 
       return shortestRoutablePoints;
