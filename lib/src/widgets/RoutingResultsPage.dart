@@ -184,8 +184,10 @@ class StartInfo extends StatelessWidget {
             child: Icon(Icons.location_on_outlined, color: Colors.white),
           ),
           SizedBox(width: 20.0),
-          Text(start,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Text(start,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
