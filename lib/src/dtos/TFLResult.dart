@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:wheelgo/src/parameters/PublicTransportLeg.dart';
@@ -40,6 +41,8 @@ class TFLResult {
         List<PublicTransportRide> rides = [];
         List<LatLng> legPath = [];
         while (json['journeys'][0]['legs'][i]['mode']['id'] != "walking" && i < json['journeys'][0]['legs'].length) {
+          leg = json['journeys'][0]['legs'][i];
+
           List<String> stops = [];
           for (final stop in leg['path']['stopPoints']) {
             stops.add(stop['name']);
@@ -47,25 +50,24 @@ class TFLResult {
 
           List<dynamic> legPathStrs = jsonDecode(leg['path']['lineString']);
           legPath.addAll(legPathStrs.map((e) => LatLng(e[0], e[1])).toList());
-          debugPrint("LEG PATH: ${legPath.toString()}");
-          debugPrint("LEG PATH LEN: ${legPath.length}");
-          debugPrint("CURRENT LEN: ${legPathStrs.map((e) => LatLng(e[0], e[1])).toList().length}");
 
           rides.add(PublicTransportRide(
-              startStation: leg['path']['stopPoints'][0]['name'],
+              startStation: leg['departurePoint']['commonName'],
               leavingTime: TimeOfDay.fromDateTime(DateTime.parse(leg['departureTime'])),
               line: leg['routeOptions'][0]['lineIdentifier']['name'],
               duration: Duration(minutes: leg['duration']),
               stops: stops
           ));
           i++;
-          debugPrint("I process public transport");
         }
 
+        Duration totalDuration = Duration.zero;
+        rides.forEach((r) => totalDuration += r.duration);
+
         legs.add(PublicTransportLeg(
-            finalStation: leg['path']['stopPoints'].last['name'],
+            finalStation: leg['arrivalPoint']['commonName'],
             arrivalTime: TimeOfDay.fromDateTime(DateTime.parse(leg['arrivalTime'])),
-            duration: Duration(minutes: leg['duration']),
+            duration: totalDuration,
             rides: rides,
             path: legPath,
         ));
