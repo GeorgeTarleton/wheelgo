@@ -129,6 +129,8 @@ class QueryService {
   }
 
   Future<PlaceDetailParams> queryPlace(int id, AttractionType type) async {
+    debugPrint("Querying place data");
+
     String query = "$overpassUrl/api/interpreter?data=[out:json];${describeEnum(type)}($id);out body;";
     final response = await http.get(Uri.parse(query));
 
@@ -143,12 +145,13 @@ class QueryService {
 
   // For each list segment, have start encoded at the start, and end at the end
   Future<List<LatLng>> findShortestRoutablePoints(List<LatLng> points) async {
+    debugPrint("Finding shortest points");
+
     String query = "$overpassUrl/api/interpreter?data=[out:json];";
     for (final point in points) {
       query += "way(around:$searchRadius,${point.latitude},${point.longitude})[\"highway\"=\"footway\"];>;out body;make separator;out;";
     }
     final response = await http.get(Uri.parse(query));
-    debugPrint("Query: $query");
 
     debugPrint(response.statusCode.toString());
     if (response.statusCode == 200) {
@@ -157,7 +160,6 @@ class QueryService {
       // Parse the results for the routable point candidates
       List<List<LatLng>> routablePointOptions = [];
       List<LatLng> currentPoints = [];
-      debugPrint("Elements: ${opResponse.elements}");
       for (final element in opResponse.elements) {
         if (element.type == AttractionType.separator) {
           routablePointOptions.add(currentPoints);
@@ -167,9 +169,6 @@ class QueryService {
         }
       }
 
-      debugPrint("routablePointOptions: ${routablePointOptions.toString()}");
-      debugPrint(routablePointOptions.length.toString());
-
       // Find shortest routable point for each point
       Distance distance = Distance();
       List<LatLng> shortestRoutablePoints = [];
@@ -178,8 +177,6 @@ class QueryService {
             .map((pointOption) => distance.as(LengthUnit.Centimeter, pointOption, points[i])).toList();
 
         int minInd = 0;
-        debugPrint("RoutablePointOptions: $routablePointOptions");
-        debugPrint("Distances: $distances}");
         if (distances.isEmpty) {
           debugPrint("Distances is empty!");
           shortestRoutablePoints.add(points[i]);
@@ -195,7 +192,6 @@ class QueryService {
 
         shortestRoutablePoints.add(routablePointOptions[i][minInd]);
       }
-      debugPrint("Shortest points: ${shortestRoutablePoints.toString()}");
 
       return shortestRoutablePoints;
 
@@ -205,6 +201,8 @@ class QueryService {
   }
 
   Future<List<NominatimElement>> searchForPlace(String name) async {
+    debugPrint("Querying nominatim");
+
     String query = "https://nominatim.openstreetmap.org/search?q=$name, Greater London&namedetails=1&addressdetails=1&limit=$searchLimit&format=json";
     final response = await http.get(Uri.parse(query));
 
@@ -218,6 +216,8 @@ class QueryService {
   }
 
   Future<ORSResult> queryORS(List<LatLng> coords, RestrictionsData restrictions) async {
+    debugPrint("Querying ORS");
+
     String query = "https://api.openrouteservice.org/v2/directions/wheelchair";
     Map<String, String> headers = {
       'Content-Type': 'application/json; charset=utf-8',
@@ -225,9 +225,6 @@ class QueryService {
       'Authorization': "5b3ce3597851110001cf624826af508aff94406c98ec0eccd6725c15",
     };
 
-    debugPrint(
-        "Coords: [${coords.first.longitude},${coords.first.latitude}],[${coords
-            .last.longitude},${coords.last.latitude}]");
     List<List<double>> parsedCoords = coords.map((e) => [e.longitude, e.latitude]).toList();
 
     List<int> skippedSegments = [];
@@ -266,7 +263,6 @@ class QueryService {
 
     debugPrint("ORS body: ${json.encode(body)}");
     debugPrint(response.statusCode.toString());
-    debugPrint(skippedSegments.toString());
     if (response.statusCode == 200) {
       debugPrint(response.body);
       return ORSResult.fromJson(jsonDecode(response.body));
@@ -282,6 +278,8 @@ class QueryService {
   }
 
   Future<TFLResult> queryTfl(LatLng from, LatLng to) async {
+    debugPrint("Querying TFL");
+
     final queryParams = {
       'accessibilityPreference': 'stepFreeToPlatform',
       'useMultiModelCall': 'false',
@@ -290,12 +288,12 @@ class QueryService {
     };
     final uri = Uri.https("api.tfl.gov.uk", "/Journey/JourneyResults/${from.latitude},${from.longitude}/to/${to.latitude},${to.longitude}", queryParams);
     debugPrint(uri.toString());
+
     final response = await http.get(uri);
+    debugPrint(response.statusCode.toString());
     if (response.statusCode == 200) {
-      debugPrint(response.body);
       return TFLResult.fromJson(jsonDecode(response.body));
     } else {
-      debugPrint(response.statusCode.toString());
       throw QueryFailedException('Failed to search');
     }
   }

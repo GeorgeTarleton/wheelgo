@@ -94,7 +94,6 @@ class _MainMapState extends State<MainMap> {
         List<LatLng> routablePoints = await queryService.findShortestRoutablePoints([startInfo.pos, finishInfo.pos]);
 
         ORSResult result = await queryService.queryORS(routablePoints, restrictions);
-        debugPrint(result.toString());
 
         final now = DateTime.now();
         final arrivalTime = now.add(result.duration);
@@ -112,12 +111,9 @@ class _MainMapState extends State<MainMap> {
           setState(() {
             polylines.addAll(result.polylines);
           });
-
-          debugPrint("POLYLINES: ${polylines.toString()}");
         }
       } else {
         TFLResult result = await queryService.queryTfl(startInfo.pos, finishInfo.pos);
-        debugPrint("TFL RESULTS: ${result.toString()}");
 
         // Convert results into params
         List<LatLng> walkingSegments = [];
@@ -133,7 +129,6 @@ class _MainMapState extends State<MainMap> {
 
         // Query ORS with the walking distances
         ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
-        debugPrint("ORS RESULTS: ${orsResult.toString()}");
 
         polylines.addAll(orsResult.polylines);
 
@@ -153,8 +148,7 @@ class _MainMapState extends State<MainMap> {
           } else {
             finalLegs.add(leg);
             duration += (leg as PublicTransportLeg).duration;
-            debugPrint("Transport leg path: ${leg.finalStation} ${leg.path}");
-            debugPrint("FINAL PATH LEN: ${leg.path.length}");
+
             polylines.add(Polyline(
               points: leg.path,
               color: Colors.orange,
@@ -177,8 +171,6 @@ class _MainMapState extends State<MainMap> {
             legs: finalLegs,
             elevation: orsResult.elevation,
         );
-
-        debugPrint(params.toString());
       }
 
 
