@@ -450,8 +450,9 @@ class _MainMapState extends State<MainMap> {
           title: const Text("Wheelgo", style: TextStyle(color: Colors.white)),
           backgroundColor: Theme.of(context).primaryColor,
           actions: const <Widget>[
+            Text("Navigate", style: TextStyle(color: Colors.white),),
             BackdropToggleButton(
-              icon: AnimatedIcons.list_view,
+              icon: AnimatedIcons.ellipsis_search,
             )
           ],
         ),
