@@ -118,7 +118,7 @@ class DestinationCard extends StatelessWidget {
                     SizedBox(
                       height: 4.0,
                     ),
-                    Text(params.address),
+                    Text(params.address!),
                     Divider(color: Colors.black)
                   ],
                 )),

@@ -173,18 +173,19 @@ class _MainMapState extends State<MainMap> {
         );
       }
 
+      mapController.move(startInfo.pos, 16);
 
       currentPage = RoutingResultsPage(params: params);
       isLoadingSlideable = false;
       setState(() {});
-    } on RouteNotFoundException catch(e) {
+    } on RouteNotFoundException {
       panelController.open();
       currentPage = RetryPlaceRequestPage(
         text: "No route found! Please select other points.",
       );
       isLoadingSlideable = false;
       setState(() {});
-    } on QueryFailedException catch(e) {
+    } on QueryFailedException {
       // Show retry menu
       panelController.open();
       currentPage = RetryPlaceRequestPage(

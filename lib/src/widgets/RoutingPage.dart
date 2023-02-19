@@ -4,10 +4,13 @@ import 'package:latlong2/latlong.dart';
 import 'package:wheelgo/src/dtos/NominatimElement.dart';
 import 'package:wheelgo/src/interfaces/RestrictionsData.dart';
 import 'package:wheelgo/src/widgets/SearchPage.dart';
+import 'package:geolocator/geolocator.dart';
 
+import '../exceptions/LocationException.dart';
 import '../parameters/DestinationCardParams.dart';
 import '../parameters/MarkerInfo.dart';
 import '../services/QueryService.dart';
+import '../utilities/GetCurrentPosition.dart';
 
 class RoutingPage extends StatefulWidget {
   const RoutingPage({
@@ -50,6 +53,37 @@ class _RoutingPageState extends State<RoutingPage> {
                               shrinkWrap: true,
                               children: [
                                 SizedBox(height: 5),
+                                Container(
+                                  padding: EdgeInsets.only(left: 15, top: 10, right: 15, bottom: 10),
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      try {
+                                        Position currentPos = await getCurrentPosition();
+                                        setState(() => originInfo = DestinationCardParams(
+                                          name: "My Location",
+                                          pos: LatLng(currentPos.latitude, currentPos.longitude),
+                                        ));
+
+                                        Navigator.pop(context);
+                                      } on LocationException catch(e) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(content: Text(e.cause))
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.all(8),
+                                        textStyle: const TextStyle(fontSize: 20)
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.my_location, size: 40),
+                                        SizedBox(width: 20),
+                                        Text("My Location"),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                                 SearchPage(onCardSelect: (params) {
                                   setState(() => originInfo = params);
                                   Navigator.pop(context);
