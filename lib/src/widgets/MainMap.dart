@@ -85,7 +85,6 @@ class _MainMapState extends State<MainMap> {
     setState(() {
       polylines = [];
       isLoadingSlideable = true;
-      backButtonEnabled = true;
     });
 
     RoutingResultsPageParams params;
@@ -176,15 +175,11 @@ class _MainMapState extends State<MainMap> {
       mapController.move(startInfo.pos, 16);
 
       currentPage = RoutingResultsPage(params: params);
-      isLoadingSlideable = false;
-      setState(() {});
     } on RouteNotFoundException {
       panelController.open();
       currentPage = RetryPlaceRequestPage(
         text: "No route found! Please select other points.",
       );
-      isLoadingSlideable = false;
-      setState(() {});
     } on QueryFailedException {
       // Show retry menu
       panelController.open();
@@ -192,22 +187,20 @@ class _MainMapState extends State<MainMap> {
         text: "An error occurred getting the information!",
         onRetry: () => showRoutingResults(startInfo, finishInfo, restrictions),
       );
-      isLoadingSlideable = false;
-      setState(() {});
     }
+    isLoadingSlideable = false;
+    backButtonEnabled = true;
+    setState(() {});
   }
 
   Future<void> showPlaceDetailInfo(int id, AttractionType type) async {
     setState(() {
       isLoadingSlideable = true;
-      backButtonEnabled = true;
     });
     try {
       PlaceDetailParams params = await queryService.queryPlace(id, type);
 
       currentPage = PlaceDetail(params: params);
-      isLoadingSlideable = false;
-      setState(() {});
     } on QueryFailedException {
       // Show retry menu
       panelController.open();
@@ -215,9 +208,11 @@ class _MainMapState extends State<MainMap> {
         text: "An error occurred getting the information!",
         onRetry: () => showPlaceDetailInfo(id, type),
       );
-      isLoadingSlideable = false;
-      setState(() {});
     }
+
+    isLoadingSlideable = false;
+    backButtonEnabled = true;
+    setState(() {});
   }
 
   bool locationsAreEqual(LatLng pos1, LatLng pos2) {
