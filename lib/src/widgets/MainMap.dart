@@ -83,6 +83,7 @@ class _MainMapState extends State<MainMap> {
 
   Future<void> showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) async {
     setState(() {
+      polylines = [];
       isLoadingSlideable = true;
       backButtonEnabled = true;
     });
@@ -141,9 +142,7 @@ class _MainMapState extends State<MainMap> {
         Duration duration = Duration();
         double distance = 0;
         List<TravelLeg> finalLegs = [];
-        // for (final leg in result.legs) {
-        //   debugPrint("Type of leg is: ${leg.getType()}");
-        // }
+
         for (final leg in result.legs) {
           if (leg.getType() == TravelLegType.walking) {
             finalLegs.add(orsResult.legs[wheelingInd]);
