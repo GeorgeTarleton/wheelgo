@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
         title: 'Wheelgo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Colors.blue,
           primarySwatch: Colors.blue,
