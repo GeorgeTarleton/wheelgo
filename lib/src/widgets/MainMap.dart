@@ -72,6 +72,7 @@ class _MainMapState extends State<MainMap> {
   bool loadingMarkers = false;
   bool isLoadingSlideable = false;
   List<Marker> markers = [];
+  List<Marker> routeMarkers = [];
   List<Polyline> polylines = [];
   Marker? selectedMarker;
   LatLngBounds lastBounds = initBounds;
@@ -84,6 +85,7 @@ class _MainMapState extends State<MainMap> {
   Future<void> showRoutingResults(DestinationCardParams startInfo, DestinationCardParams finishInfo, RestrictionsData restrictions) async {
     setState(() {
       polylines = [];
+      routeMarkers = [];
       isLoadingSlideable = true;
     });
 
@@ -173,6 +175,30 @@ class _MainMapState extends State<MainMap> {
       }
 
       mapController.move(startInfo.pos, 16);
+
+      routeMarkers = [
+        Marker(
+          point: startInfo.pos,
+          height: markerSize*1.5,
+          width: markerSize*1.5,
+          builder: (ctx) => const Icon(
+            Icons.location_pin,
+            size: markerSize*1.5,
+            color: Colors.red,
+          ),
+        ),
+        Marker(
+          point: finishInfo.pos,
+          height: markerSize*1.5,
+          width: markerSize*1.5,
+          builder: (ctx) => const Icon(
+            Icons.location_pin,
+            size: markerSize*1.5,
+            color: Colors.red,
+          ),
+        ),
+      ];
+      setState(() {});
 
       currentPage = RoutingResultsPage(params: params);
     } on RouteNotFoundException {
@@ -266,6 +292,7 @@ class _MainMapState extends State<MainMap> {
       selectedMarker = null;
     }
     polylines = [];
+    routeMarkers = [];
 
     currentPage = SearchPage(panelController: panelController, onCardSelect: goToSearchResult);
     backButtonEnabled = false;
@@ -506,7 +533,7 @@ class _MainMapState extends State<MainMap> {
                   fitBoundsOptions: const FitBoundsOptions(
                     padding: EdgeInsets.all(50),
                   ),
-                  markers: markers,
+                  markers: markers + routeMarkers,
                   onMarkerTap: (marker) => selectMarker(marker),
                   polygonOptions: const PolygonOptions(
                       borderColor: Colors.blueAccent,
