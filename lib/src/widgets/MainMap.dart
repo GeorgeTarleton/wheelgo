@@ -145,6 +145,21 @@ class _MainMapState extends State<MainMap> {
         // Query ORS with the walking distances
         ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
 
+        polylines.addAll([
+          Polyline(
+            points: [startInfo.pos, orsResult.polylines.first.points.first],
+            color: Colors.black,
+            strokeWidth: 6,
+            isDotted: true,
+          ),
+          Polyline(
+            points: [finishInfo.pos, orsResult.polylines.last.points.last],
+            color: Colors.black,
+            strokeWidth: 6,
+            isDotted: true,
+          ),
+        ]);
+
         // Merge the two lists
         int wheelingInd = 0;
         Duration duration = Duration();
@@ -171,20 +186,6 @@ class _MainMapState extends State<MainMap> {
         }
         setState(() {
           polylines.addAll(orsResult.polylines);
-          polylines.addAll([
-            Polyline(
-              points: [startInfo.pos, orsResult.polylines.first.points.first],
-              color: Colors.black,
-              strokeWidth: 6,
-              isDotted: true,
-            ),
-            Polyline(
-              points: [finishInfo.pos, orsResult.polylines.last.points.last],
-              color: Colors.black,
-              strokeWidth: 6,
-              isDotted: true,
-            ),
-          ]);
           polylines = polylines.toList();
         });
 
@@ -202,29 +203,6 @@ class _MainMapState extends State<MainMap> {
       }
 
       mapController.move(startInfo.pos, 16);
-
-      routeMarkers = [
-        Marker(
-          point: startInfo.pos,
-          height: markerSize*1.5,
-          width: markerSize*1.5,
-          builder: (ctx) => const Icon(
-            Icons.location_pin,
-            size: markerSize*1.5,
-            color: Colors.red,
-          ),
-        ),
-        Marker(
-          point: finishInfo.pos,
-          height: markerSize*1.5,
-          width: markerSize*1.5,
-          builder: (ctx) => const Icon(
-            Icons.location_pin,
-            size: markerSize*1.5,
-            color: Colors.red,
-          ),
-        ),
-      ];
       setState(() {});
 
       currentPage = RoutingResultsPage(params: params);
