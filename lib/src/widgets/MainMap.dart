@@ -443,17 +443,23 @@ class _MainMapState extends State<MainMap> {
   @override
   Widget build(BuildContext context) {
 
+
     return WillPopScope(
       onWillPop: _onWillPop,
       child: BackdropScaffold(
         appBar: BackdropAppBar(
           title: const Text("Wheelgo", style: TextStyle(color: Colors.white)),
           backgroundColor: Theme.of(context).primaryColor,
-          actions: const <Widget>[
-            Text("Navigate", style: TextStyle(color: Colors.white),),
-            BackdropToggleButton(
-              icon: AnimatedIcons.ellipsis_search,
-            )
+          actions: <Widget>[
+            new Builder(builder: (BuildContext context) {
+              return Container(
+                padding: EdgeInsets.only(right: 10),
+                child: ElevatedButton(
+                  onPressed: () => Backdrop.of(context).fling(),
+                  child: Text("Navigate"),
+                ),
+              );
+            }),
           ],
         ),
         backLayer: RoutingPage(onSubmit: showRoutingResults),
