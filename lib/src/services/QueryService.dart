@@ -34,7 +34,7 @@ class QueryService {
   Map<Marker, MarkerInfo> markerInfoMap = {};
   final searchLimit = 10;
   final overpassUrl = "https://overpass.kumi.systems/api/interpreter";
-  final searchRadius = 100;
+  final searchRadius = 50;
 
   PlaceDetailParams getPlaceDetail(int id, AttractionType type) {
     return PlaceDetailParams(

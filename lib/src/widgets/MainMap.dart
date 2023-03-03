@@ -110,6 +110,20 @@ class _MainMapState extends State<MainMap> {
 
         if (result.polylines.isNotEmpty) {
           setState(() {
+            polylines.addAll([
+              Polyline(
+                points: [startInfo.pos, result.polylines.first.points.first],
+                color: Colors.black,
+                strokeWidth: 6,
+                isDotted: true,
+              ),
+              Polyline(
+                points: [finishInfo.pos, result.polylines.last.points.last],
+                color: Colors.black,
+                strokeWidth: 6,
+                isDotted: true,
+              ),
+            ]);
             polylines.addAll(result.polylines);
           });
         }
@@ -130,8 +144,6 @@ class _MainMapState extends State<MainMap> {
 
         // Query ORS with the walking distances
         ORSResult orsResult = await queryService.queryORS(walkingSegments, restrictions);
-
-        polylines.addAll(orsResult.polylines);
 
         // Merge the two lists
         int wheelingInd = 0;
@@ -158,6 +170,21 @@ class _MainMapState extends State<MainMap> {
           }
         }
         setState(() {
+          polylines.addAll(orsResult.polylines);
+          polylines.addAll([
+            Polyline(
+              points: [startInfo.pos, orsResult.polylines.first.points.first],
+              color: Colors.black,
+              strokeWidth: 6,
+              isDotted: true,
+            ),
+            Polyline(
+              points: [finishInfo.pos, orsResult.polylines.last.points.last],
+              color: Colors.black,
+              strokeWidth: 6,
+              isDotted: true,
+            ),
+          ]);
           polylines = polylines.toList();
         });
 
